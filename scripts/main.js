@@ -1,31 +1,53 @@
-var canvas;
-var context;
+function LogicSim()
+{
+	this.onInitialize = function()
+	{
+		this.canvas = document.getElementById( "canvas" );
+		this.context = canvas.getContext( "2d" );
+		
+		this.toolbar = new Toolbar();
+		this.toolbar.addGroup( "Test Group" );
+		this.toolbar.addGroup( "Another Group" );
+		this.toolbar.addGroup( "And another" );
+		this.toolbar.addGroup( "And so on" );
+		
+		this.onResizeCanvas();
+	};
+
+	this.onResizeCanvas = function()
+	{
+		
+		this.canvas.width = window.innerWidth;
+		this.canvas.height = window.innerHeight;
+		
+		this.render( this.context );
+	};
+
+	this.render = function( context )
+	{
+		var gridSize = 64;
+
+		for( var x = 0; x < canvas.width; x += gridSize )
+		{
+			for( var y = 0; y < canvas.height; y +=  gridSize )
+			{
+				context.fillStyle = ( x % ( 2 * gridSize ) == y % ( 2 * gridSize ) ) ? "#CCCCCC" : "#DDDDDD";
+				context.fillRect( x, y, gridSize, gridSize );
+			}
+		}
+		
+		this.toolbar.render( context );
+	};
+}
+
+logicSim = new LogicSim();
 
 window.onload = function()
 {
-	canvas = document.getElementById( 'canvas' );
-	context = canvas.getContext( '2d' );
-	
-	onResizeCanvas();
+	logicSim.onInitialize();
 };
 
-onResizeCanvas = function()
+function onResizeCanvas()
 {
-	
-	canvas.width = window.innerWidth;
-	canvas.height = window.innerHeight;
-	
-	render();
-};
-
-render = function()
-{
-	for( var x = 0; x < canvas.width; x += 64 )
-	{
-		for( var y = 0; y < canvas.height; y += 64 )
-		{
-			context.fillStyle = ( x % 128 == y % 128 ) ? '#CCCCCC' : '#DDDDDD';
-			context.fillRect( x, y, 64, 64 );
-		}
-	}
+	logicSim.onResizeCanvas();
 };
