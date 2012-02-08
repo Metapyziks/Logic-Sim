@@ -9,22 +9,23 @@ function Toolbar()
 	this.btnimage.contract = images.load( "images/btnup.png" );
 
 	this.width = 256;
-	this.open = true;
+	this.isOpen = true;
 	
 	this.groups = new Array();
 	
 	this.addGroup = function( name )
 	{
-		this.groups.push( new ToolbarGroup( this, name ) );
+		var group = new ToolbarGroup( this, name );
+		this.groups.push( group );
+		return group;
 	}
 	
 	this.render = function( context )
-	{
+	{		
 		context.fillStyle = "#FFFFFF";
 		context.fillRect( 0, 0, this.width, window.innerHeight );
 		
 		var yPos = 0;
-		
 		for( var i = 0; i < this.groups.length; ++ i )
 		{
 			yPos += this.groups[ i ].render( context, yPos );
@@ -32,6 +33,23 @@ function Toolbar()
 		
 		context.fillStyle = "#000000";
 		context.fillRect( this.width - 1, 0, 1, window.innerHeight );
+	}
+	
+	this.onClick = function( x, y )
+	{
+		var yPos = 0;
+		for( var i = 0; i < this.groups.length; ++ i )
+		{
+			var height = this.groups[ i ].getInnerHeight() + 24;
+			
+			if( y < yPos + height )
+			{
+				this.groups[ i ].onClick( x, y - yPos );
+				break;
+			}
+			
+			yPos += height;
+		}
 	}
 }
 
@@ -42,11 +60,54 @@ function ToolbarGroup( toolbar, name )
 	this.name = name;
 	this.items = new Array();
 	
-	this.open = true;
+	this.isOpen = true;
+	this.actionTime = new Date().getTime();
+	
+	this.getInnerHeight = function()
+	{
+		var openSize = 128;
+		var delay = 500.0;
+		var delta = Math.min( delay, new Date().getTime() - this.actionTime ) / delay;
+		delta *= delta;
+		if( !this.isOpen )
+			delta = 1.0 - delta;
+		return Math.round( openSize * delta );
+	}
+	
+	this.getIsMouse
 	
 	this.addItem = function( item )
 	{
 		this.items.push( item );
+	}
+	
+	this.open = function()
+	{
+		if( !this.isOpen )
+		{
+			this.actionTime = new Date().getTime();
+			this.isOpen = true;
+		}
+	}
+	
+	this.close = function()
+	{
+		if( this.isOpen )
+		{
+			this.actionTime = new Date().getTime();
+			this.isOpen = false;
+		}
+	}
+	
+	this.onClick = function( x, y )
+	{
+		if( y < 24 )
+		{
+			if( this.isOpen )
+				this.close();
+			else
+				this.open();
+		}
 	}
 	
 	this.render = function( context, yPos )
@@ -59,7 +120,7 @@ function ToolbarGroup( toolbar, name )
 		context.drawImage( this.toolbar.sepimage.end, 0, 0 );
 		context.drawImage( this.toolbar.sepimage.end, this.toolbar.width - 2, 0 );
 		
-		context.drawImage( this.open ? this.toolbar.btnimage.contract : this.toolbar.btnimage.expand,
+		context.drawImage( this.isOpen ? this.toolbar.btnimage.contract : this.toolbar.btnimage.expand,
 			this.toolbar.width - 28, 4 );
 		
 		context.fillStyle = "#FFFFFF";
@@ -74,6 +135,6 @@ function ToolbarGroup( toolbar, name )
 		
 		context.translate( 0, -yPos );
 		
-		return 24 + 32;
+		return 24 + this.getInnerHeight();
 	}
 }
