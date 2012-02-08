@@ -107,7 +107,7 @@ function ToolbarGroup( toolbar, name )
 	this.y = 0;
 	
 	this.isOpen = true;
-	this.curDelta = 0.0;
+	this.curDelta = 1.0;
 	
 	this.openButton = new Button.Small( this.toolbar.width - 28, 0, 24 );
 	

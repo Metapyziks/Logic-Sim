@@ -15,6 +15,20 @@ function SocketInfo( face, offset, label )
 	this.isTop 		= this.face == SocketFace.top;
 	this.isRight 	= this.face == SocketFace.right;
 	this.isBottom 	= this.face == SocketFace.bottom;
+	
+	this.getPosition = function( gateType, x, y )
+	{
+		return new Pos(
+			x + 
+			( ( this.face == SocketFace.left ) ? - gateType.width / 2
+			: ( this.face == SocketFace.right ) ? gateType.width / 2
+			: gateType.width * ( this.offset - 0.5 ) ),
+			y +
+			( ( this.face == SocketFace.top ) ? - gateType.height / 2
+			: ( this.face == SocketFace.bottom ) ? gateType.height / 2
+			: gateType.height * ( this.offset - 0.5 ) )
+		);
+	}
 }
 
 function GateType( name, width, height, inputs, outputs )
@@ -34,37 +48,23 @@ function GateType( name, width, height, inputs, outputs )
 	
 	this.render = function( context, x, y )
 	{
-		context.strokeStyle = '#000000';
+		context.strokeStyle = "#000000";
 		context.lineWidth = 2;
-		context.fillStyle = '#9999FF';
 		
 		for( var i = 0; i < inputs.length + outputs.length; ++ i )
 		{
 			var inp = ( i < inputs.length ? inputs[ i ] : outputs[ i - inputs.length ] );
-			var startX = ( inp.face == SocketFace.left ) ? -width / 2
-				: ( inp.face == SocketFace.right ) ? width / 2
-				: width * ( inp.offset - 0.5 );
-			var startY = ( inp.face == SocketFace.top ) ? -height / 2
-				: ( inp.face == SocketFace.bottom ) ? height / 2
-				: height * ( inp.offset - 0.5 );
-			var endX = ( inp.face == SocketFace.left ) ? 0
-				: ( inp.face == SocketFace.right ) ? 0
-				: width * ( inp.offset - 0.5 );
-			var endY = ( inp.face == SocketFace.top ) ? 0
-				: ( inp.face == SocketFace.bottom ) ? 0
-				: height * ( inp.offset - 0.5 );
-				
-			if( i == inputs.length )
-				context.fillStyle = '#FF9999';
+			var start = inp.getPosition( this, x, y );
+			var end = inp.getPosition( this, x, y );
+			
+			if( inp.face == SocketFace.left || inp.face == SocketFace.right )
+				end.x = x;
+			else
+				end.y = y;
 				
 			context.beginPath();
-			context.moveTo( startX + x, startY + y );
-			context.lineTo( endX + x, endY + y );
-			context.stroke();
-			context.closePath();
-			context.beginPath();
-			context.arc( startX + x, startY + y, 3, 0, Math.PI * 2, true );
-			context.fill();
+			context.moveTo( start.x, start.y );
+			context.lineTo( end.x, end.y );
 			context.stroke();
 			context.closePath();
 		}
@@ -154,15 +154,24 @@ function OrGate()
 	}
 }
 
-function Link( gate, output )
+function Link( gate, socket )
 {
 	this.gate = gate;
-	this.output = output;
+	this.socket = socket;
+	
+	this.getValue = function()
+	{
+		return this.gate.getOutput( this.socket );
+	}
+	
+	this.equals = function( obj )
+	{
+		return this.gate == obj.gate && this.socket == obj.socket;
+	}
 }
 
 function Gate( gateType, x, y )
 {
-	var myInputs = new Array();
 	var myOutputs = new Array();
 	var myNextOutputs = new Array();
 	var myInLinks = new Array();
@@ -172,38 +181,60 @@ function Gate( gateType, x, y )
 	this.x = x;
 	this.y = y;
 	
+	this.width = this.type.width;
+	this.height = this.type.height;
+	
+	this.inputs = this.type.inputs;
+	this.outputs = this.type.outputs;
+	
 	for( var i = 0; i < this.type.inputs.length; ++i )
-	{
-		myInputs[ i ] = false;
 		myInLinks[ i ] = null;
-	}
 	
 	for( var i = 0; i < this.type.outputs.length; ++i )
 		myOutputs[ i ] = false;
 	
+	this.getRect = function( gridSize )
+	{
+		if( !gridSize )
+			gridSize = 1;
+	
+		var rl = Math.round( this.x - this.width / 2 );
+		var rt = Math.round( this.y - this.height / 2 );
+		var rr = Math.round( this.x + this.width / 2 );
+		var rb = Math.round( this.y + this.height / 2 );
+		
+		rl = Math.floor( rl / gridSize ) * gridSize;
+		rt = Math.floor( rt / gridSize ) * gridSize;
+		rr = Math.ceil( rr / gridSize ) * gridSize;
+		rb = Math.ceil( rb / gridSize ) * gridSize;
+		
+		return new Rect( rl, rt, rr - rl, rb - rt );
+	}
+	
 	this.linkInput = function( gate, output, input )
 	{
-		var index = this.type.inputs.indexOf( input );
+		var index = this.inputs.indexOf( input );
 		myInLinks[ index ] = new Link( gate, output );
 	}
 	
 	this.getOutput = function( output )
 	{
-		var index = this.type.outputs.indexOf( output );
+		var index = this.outputs.indexOf( output );
 		return myOutputs[ index ];
 	}
 	
 	this.step = function()
 	{
-		var inputs = new Array();
+		var inVals = new Array();
 	
-		for( var i = 0; i < myInputs.length; ++ i )
+		for( var i = 0; i < this.inputs.length; ++ i )
 		{
 			var link = myInLinks[ i ];
-			inputs[ i ] = myInLinks[ i ] == null ? false : link.gate.getOutput( link.output );
+			inVals[ i ] = ( myInLinks[ i ] == null )
+				? false : link.getValue();
 		}
 		
-		myNextOutputs = this.type.func( inputs );
+		myNextOutputs = this.type.func( inVals );
 	}
 	
 	this.commit = function()
@@ -214,5 +245,35 @@ function Gate( gateType, x, y )
 	this.render = function( context )
 	{
 		this.type.render( context, this.x, this.y );
+		
+		context.strokeStyle = "#000000";
+		context.lineWidth = 2;
+		context.fillStyle = "#9999FF";
+		
+		for( var i = 0; i < this.inputs.length + this.outputs.length; ++ i )
+		{
+			var inp = ( i < this.inputs.length ? this.inputs[ i ]
+				: this.outputs[ i - this.inputs.length ] );
+			var pos = inp.getPosition( this.type, this.x, this.y );
+				
+			if( i < this.inputs.length )
+			{
+				if( myInLinks[ i ] != null )
+					context.fillStyle = myInLinks[ i ].getValue() ? "#FF9999" : "#9999FF";
+				else
+					context.fillStyle = "#999999";
+			}
+			else
+			{
+				context.fillStyle = myOutputs[ i - this.inputs.length ]
+					? "#FF9999" : "#9999FF";
+			}
+				
+			context.beginPath();
+			context.arc( pos.x, pos.y, 4, 0, Math.PI * 2, true );
+			context.fill();
+			context.stroke();
+			context.closePath();
+		}
 	}
 }
