@@ -1,5 +1,8 @@
 function LogicSim()
 {
+	this.gridSize = 0;
+	this.gridImage = null;
+
 	this.onInitialize = function()
 	{
 		this.canvas = document.getElementById( "canvas" );
@@ -11,17 +14,23 @@ function LogicSim()
 		this.toolbar.addGroup( "And another" );
 		this.toolbar.addGroup( "And so on" );
 		
+		this.changeGridSize( 32 );
+		
 		this.onResizeCanvas();
-	};
+	}
+	
+	this.changeGridSize = function( size )
+	{
+		this.gridSize = size;
+	}
 
 	this.onResizeCanvas = function()
 	{
-		
 		this.canvas.width = window.innerWidth;
 		this.canvas.height = window.innerHeight;
 		
 		this.render( this.context );
-	};
+	}
 
 	this.render = function( context )
 	{
@@ -37,7 +46,7 @@ function LogicSim()
 		}
 		
 		this.toolbar.render( context );
-	};
+	}
 }
 
 logicSim = new LogicSim();
@@ -45,9 +54,14 @@ logicSim = new LogicSim();
 window.onload = function()
 {
 	logicSim.onInitialize();
-};
+}
+
+images.onAllLoaded = function()
+{
+	logicSim.render( logicSim.context );
+}
 
 function onResizeCanvas()
 {
 	logicSim.onResizeCanvas();
-};
+}
