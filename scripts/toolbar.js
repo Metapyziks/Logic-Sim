@@ -4,9 +4,9 @@ function Toolbar()
 	this.sepimage.end = images.load( "images/sepend.png" );
 	this.sepimage.mid = images.load( "images/sepmid.png" );
 	
-	this.btnimage = new Object();
-	this.btnimage.expand = images.load( "images/btndown.png" );
-	this.btnimage.contract = images.load( "images/btnup.png" );
+	this.arrimage = new Object();
+	this.arrimage.down = images.load( "images/arrdown.png" );
+	this.arrimage.up = images.load( "images/arrup.png" );
 
 	this.width = 256;
 	this.isOpen = true;
@@ -28,14 +28,21 @@ function Toolbar()
 		var yPos = 0;
 		for( var i = 0; i < this.groups.length; ++ i )
 		{
-			yPos += this.groups[ i ].render( context, yPos );
+			this.groups[ i ].y = yPos;
+			yPos += this.groups[ i ].render( context );
 		}
 		
 		context.fillStyle = "#000000";
 		context.fillRect( this.width - 1, 0, 1, window.innerHeight );
 	}
 	
-	this.onClick = function( x, y )
+	this.mouseMove = function( x, y )
+	{
+		for( var i = 0; i < this.groups.length; ++ i )
+			this.groups[ i ].mouseMove( x, y );
+	}
+	
+	this.mouseDown = function( x, y )
 	{
 		var yPos = 0;
 		for( var i = 0; i < this.groups.length; ++ i )
@@ -44,7 +51,41 @@ function Toolbar()
 			
 			if( y < yPos + height )
 			{
-				this.groups[ i ].onClick( x, y - yPos );
+				this.groups[ i ].mouseDown( x, y );
+				break;
+			}
+			
+			yPos += height;
+		}
+	}
+	
+	this.mouseUp = function( x, y )
+	{
+		var yPos = 0;
+		for( var i = 0; i < this.groups.length; ++ i )
+		{
+			var height = this.groups[ i ].getInnerHeight() + 24;
+			
+			if( y < yPos + height )
+			{
+				this.groups[ i ].mouseUp( x, y );
+				break;
+			}
+			
+			yPos += height;
+		}
+	}
+	
+	this.click = function( x, y )
+	{
+		var yPos = 0;
+		for( var i = 0; i < this.groups.length; ++ i )
+		{
+			var height = this.groups[ i ].getInnerHeight() + 24;
+			
+			if( y < yPos + height )
+			{
+				this.groups[ i ].click( x, y );
 				break;
 			}
 			
@@ -60,21 +101,38 @@ function ToolbarGroup( toolbar, name )
 	this.name = name;
 	this.items = new Array();
 	
+	this.padding = 16;
+	this.itemSize = 64;
+	
+	this.y = 0;
+	
 	this.isOpen = true;
-	this.actionTime = new Date().getTime();
+	this.curDelta = 0.0;
+	
+	this.openButton = new Button.Small( this.toolbar.width - 28, 0, 24 );
+	
+	this.getItemsPerRow = function()
+	{		
+		return Math.max( Math.floor( this.toolbar.width / ( this.itemSize + this.padding ) ), 1 );
+	}
 	
 	this.getInnerHeight = function()
 	{
-		var openSize = 128;
-		var delay = 500.0;
-		var delta = Math.min( delay, new Date().getTime() - this.actionTime ) / delay;
-		delta *= delta;
+		var rows = Math.ceil( this.items.length / this.getItemsPerRow() );
+		var openSize = rows * ( this.itemSize + this.padding );
+		
+		this.curDelta += Math.max( ( 1.0 - this.curDelta ) / 4.0, 1.0 / openSize );
+		
+		if( this.curDelta > 1.0 )
+			this.curDelta = 1.0;
+		
+		var delta = this.curDelta;
+		
 		if( !this.isOpen )
 			delta = 1.0 - delta;
+			
 		return Math.round( openSize * delta );
 	}
-	
-	this.getIsMouse
 	
 	this.addItem = function( item )
 	{
@@ -85,7 +143,7 @@ function ToolbarGroup( toolbar, name )
 	{
 		if( !this.isOpen )
 		{
-			this.actionTime = new Date().getTime();
+			this.curDelta = 0.0;
 			this.isOpen = true;
 		}
 	}
@@ -94,25 +152,57 @@ function ToolbarGroup( toolbar, name )
 	{
 		if( this.isOpen )
 		{
-			this.actionTime = new Date().getTime();
+			this.curDelta = 0.0;
 			this.isOpen = false;
 		}
 	}
 	
-	this.onClick = function( x, y )
+	this.mouseMove = function( x, y )
 	{
-		if( y < 24 )
+		this.openButton.mouseMove( x, y );
+	}
+	
+	this.mouseDown = function( x, y )
+	{
+		if( this.openButton.isPositionOver( x, y ) )
 		{
 			if( this.isOpen )
 				this.close();
 			else
 				this.open();
 		}
+		else
+		{
+			var ipr = this.getItemsPerRow();
+			for( var i = 0; i < this.items.length; ++i )
+			{
+				var imgX = ( i % ipr ) * ( this.itemSize + this.padding )
+					+ this.padding / 2;
+				var imgY = Math.floor( i / ipr ) * ( this.itemSize + this.padding ) + this.y + 24
+					+ this.padding / 2;
+					
+				if( x >= imgX && y >= imgY && x < imgX + this.itemSize && y < imgY + this.itemSize )
+				{
+					logicSim.startDragging( this.items[ i ] );
+					break;
+				}
+			}
+		}
 	}
 	
-	this.render = function( context, yPos )
+	this.mouseUp = function( x, y )
 	{
-		context.translate( 0, yPos );
+		
+	}
+	
+	this.click = function( x, y )
+	{
+	
+	}
+	
+	this.render = function( context )
+	{
+		context.translate( 0, this.y );
 		
 		context.fillStyle = context.createPattern( this.toolbar.sepimage.mid, "repeat-x" );
 		context.fillRect( 1, 0, this.toolbar.width - 2, 24 );
@@ -120,8 +210,13 @@ function ToolbarGroup( toolbar, name )
 		context.drawImage( this.toolbar.sepimage.end, 0, 0 );
 		context.drawImage( this.toolbar.sepimage.end, this.toolbar.width - 2, 0 );
 		
-		context.drawImage( this.isOpen ? this.toolbar.btnimage.contract : this.toolbar.btnimage.expand,
-			this.toolbar.width - 28, 4 );
+		context.translate( 0, -this.y );
+		
+		this.openButton.y = this.y + 4;
+		this.openButton.image = this.isOpen ? this.toolbar.arrimage.up : this.toolbar.arrimage.down;
+		this.openButton.render( context );
+		
+		context.translate( 0, this.y );
 		
 		context.fillStyle = "#FFFFFF";
 		context.font = "bold 12px sans-serif";
@@ -133,7 +228,22 @@ function ToolbarGroup( toolbar, name )
 		context.shadowOffsetX = 0;
 		context.shadowOffsetY = 0;
 		
-		context.translate( 0, -yPos );
+		context.translate( 0, -this.y );
+		
+		if( this.isOpen && this.curDelta > 0.9 )
+		{
+			var ipr = this.getItemsPerRow();
+			
+			for( var i = 0; i < this.items.length; ++i )
+			{
+				var imgX = ( i % ipr ) * ( this.itemSize + this.padding )
+					+ ( this.itemSize + this.padding ) / 2;
+				var imgY = Math.floor( i / ipr ) * ( this.itemSize + this.padding ) + this.y + 24
+					+ ( this.itemSize + this.padding ) / 2;
+				
+				this.items[ i ].render( context, imgX, imgY );
+			}
+		}
 		
 		return 24 + this.getInnerHeight();
 	}
