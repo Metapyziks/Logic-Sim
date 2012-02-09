@@ -538,10 +538,21 @@ function LogicSim()
 
 logicSim = new LogicSim();
 
-window.onload = function()
+window.onload = function( e )
 {
-	logicSim.initialize();
-	logicSim.run();
+	if( !images.allImagesLoaded() )
+	{
+		images.onAllLoaded = function()
+		{
+			logicSim.initialize();
+			logicSim.run();
+		}
+	}
+	else
+	{
+		logicSim.initialize();
+		logicSim.run();
+	}
 }
 
 window.onmousemove = function( e )

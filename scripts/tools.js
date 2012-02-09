@@ -34,17 +34,48 @@ images.load = function( path )
 {
 	++images.myToLoadCount;
 	var img = new Image();
-	img.src = path;
+	img.src = "images/" + path;
 	
 	img.onload = images.onImageLoad;
 	
+	images[ path.substring( 0, path.length - 4 ) ] = img;
 	return img;
 }
 
 images.allImagesLoaded = function()
 {
-	return ( myToLoadCount == 0 );
+	return ( images.myToLoadCount == 0 );
 }
+
+images.load( "and.png" );
+images.load( "arrdown.png" );
+images.load( "arrup.png" );
+images.load( "btnsmallleft.png" );
+images.load( "btnsmallleftover.png" );
+images.load( "btnsmallmid.png" );
+images.load( "btnsmallmidover.png" );
+images.load( "btnsmallright.png" );
+images.load( "btnsmallrightover.png" );
+images.load( "buffer.png" );
+images.load( "clock.png" );
+images.load( "constoff.png" );
+images.load( "conston.png" );
+images.load( "nand.png" );
+images.load( "nor.png" );
+images.load( "not.png" );
+images.load( "or.png" );
+images.load( "outoff.png" );
+images.load( "outon.png" );
+images.load( "pushswitchaclosed.png" );
+images.load( "pushswitchaopen.png" );
+images.load( "pushswitchbclosed.png" );
+images.load( "pushswitchbopen.png" );
+images.load( "sepend.png" );
+images.load( "sepmid.png" );
+images.load( "switchclosed.png" );
+images.load( "switchopen.png" );
+images.load( "xnor.png" );
+images.load( "xor.png" );
 
 function Rect( x, y, width, height )
 {

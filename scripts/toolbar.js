@@ -1,12 +1,12 @@
 function Toolbar()
 {
 	this.sepimage = new Object();
-	this.sepimage.end = images.load( "images/sepend.png" );
-	this.sepimage.mid = images.load( "images/sepmid.png" );
+	this.sepimage.end = images.sepend;
+	this.sepimage.mid = images.sepmid;
 	
 	this.arrimage = new Object();
-	this.arrimage.down = images.load( "images/arrdown.png" );
-	this.arrimage.up = images.load( "images/arrup.png" );
+	this.arrimage.down = images.arrdown;
+	this.arrimage.up = images.arrup;
 
 	this.width = 256;
 	this.isOpen = true;

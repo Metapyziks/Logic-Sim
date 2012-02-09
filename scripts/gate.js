@@ -106,7 +106,7 @@ function DefaultGate( name, image, inputs, outputs )
 
 function BufferGate()
 {
-	this.__proto__ = new DefaultGate( "BUF", images.load( "images/buffer.png" ),
+	this.__proto__ = new DefaultGate( "BUF", images.buffer,
 		[ 
 			new SocketInfo( SocketFace.left, 0.5, "A" )
 		],
@@ -123,7 +123,7 @@ function BufferGate()
 
 function AndGate()
 {
-	this.__proto__ = new DefaultGate( "AND", images.load( "images/and.png" ),
+	this.__proto__ = new DefaultGate( "AND", images.and,
 		[ 
 			new SocketInfo( SocketFace.left, 0.5 - 0.125, "A" ),
 			new SocketInfo( SocketFace.left, 0.5 + 0.125, "B" )
@@ -141,7 +141,7 @@ function AndGate()
 
 function OrGate()
 {
-	this.__proto__ = new DefaultGate( "OR", images.load( "images/or.png" ),
+	this.__proto__ = new DefaultGate( "OR", images.or,
 		[ 
 			new SocketInfo( SocketFace.left, 0.5 - 0.125, "A" ),
 			new SocketInfo( SocketFace.left, 0.5 + 0.125, "B" )
@@ -159,7 +159,7 @@ function OrGate()
 
 function XorGate()
 {
-	this.__proto__ = new DefaultGate( "XOR", images.load( "images/xor.png" ),
+	this.__proto__ = new DefaultGate( "XOR", images.xor,
 		[ 
 			new SocketInfo( SocketFace.left, 0.5 - 0.125, "A" ),
 			new SocketInfo( SocketFace.left, 0.5 + 0.125, "B" )
@@ -177,7 +177,7 @@ function XorGate()
 
 function NotGate()
 {
-	this.__proto__ = new DefaultGate( "NOT", images.load( "images/not.png" ),
+	this.__proto__ = new DefaultGate( "NOT", images.not,
 		[ 
 			new SocketInfo( SocketFace.left, 0.5, "A" )
 		],
@@ -194,7 +194,7 @@ function NotGate()
 
 function NandGate()
 {
-	this.__proto__ = new DefaultGate( "NAND", images.load( "images/nand.png" ),
+	this.__proto__ = new DefaultGate( "NAND", images.nand,
 		[ 
 			new SocketInfo( SocketFace.left, 0.5 - 0.125, "A" ),
 			new SocketInfo( SocketFace.left, 0.5 + 0.125, "B" )
@@ -212,7 +212,7 @@ function NandGate()
 
 function NorGate()
 {
-	this.__proto__ = new DefaultGate( "NOR", images.load( "images/nor.png" ),
+	this.__proto__ = new DefaultGate( "NOR", images.nor,
 		[ 
 			new SocketInfo( SocketFace.left, 0.5 - 0.125, "A" ),
 			new SocketInfo( SocketFace.left, 0.5 + 0.125, "B" )
@@ -230,7 +230,7 @@ function NorGate()
 
 function XnorGate()
 {
-	this.__proto__ = new DefaultGate( "XNOR", images.load( "images/xnor.png" ),
+	this.__proto__ = new DefaultGate( "XNOR", images.xnor,
 		[ 
 			new SocketInfo( SocketFace.left, 0.5 - 0.125, "A" ),
 			new SocketInfo( SocketFace.left, 0.5 + 0.125, "B" )
@@ -248,7 +248,7 @@ function XnorGate()
 
 function ConstInputOn()
 {
-	this.__proto__ = new DefaultGate( "ON", images.load( "images/conston.png" ), [],
+	this.__proto__ = new DefaultGate( "ON", images.conston, [],
 		[ 
 			new SocketInfo( SocketFace.bottom, 0.5, "Q" )
 		]
@@ -262,7 +262,7 @@ function ConstInputOn()
 
 function ConstInputOff()
 {
-	this.__proto__ = new DefaultGate( "OFF", images.load( "images/constoff.png" ), [],
+	this.__proto__ = new DefaultGate( "OFF", images.constoff, [],
 		[ 
 			new SocketInfo( SocketFace.bottom, 0.5, "Q" )
 		]
@@ -276,7 +276,7 @@ function ConstInputOff()
 
 function ClockInput()
 {
-	this.__proto__ = new DefaultGate( "CLOCK", images.load( "images/clock.png" ), [],
+	this.__proto__ = new DefaultGate( "CLOCK", images.clock, [],
 		[ 
 			new SocketInfo( SocketFace.bottom, 0.5, "Q" )
 		]
@@ -304,8 +304,8 @@ function ClockInput()
 
 function ToggleSwitch()
 {
-	this.openImage = images.load( "images/switchopen.png" );
-	this.closedImage = images.load( "images/switchclosed.png" );
+	this.openImage = images.switchopen;
+	this.closedImage = images.switchclosed;
 
 	this.__proto__ = new DefaultGate( "TSWITCH", this.openImage,
 		[
@@ -341,8 +341,8 @@ function ToggleSwitch()
 
 function PushSwitchA()
 {
-	this.openImage = images.load( "images/pushswitchaopen.png" );
-	this.closedImage = images.load( "images/pushswitchaclosed.png" );
+	this.openImage = images.pushswitchaopen;
+	this.closedImage = images.pushswitchaclosed;
 
 	this.__proto__ = new DefaultGate( "PSWITCHA", this.openImage,
 		[
@@ -383,8 +383,8 @@ function PushSwitchA()
 
 function PushSwitchB()
 {
-	this.openImage = images.load( "images/pushswitchbopen.png" );
-	this.closedImage = images.load( "images/pushswitchbclosed.png" );
+	this.openImage = images.pushswitchbopen;
+	this.closedImage = images.pushswitchbclosed;
 
 	this.__proto__ = new DefaultGate( "PSWITCHB", this.closedImage,
 		[
@@ -425,8 +425,8 @@ function PushSwitchB()
 
 function OutputDisplay()
 {
-	this.onImage = images.load( "images/outon.png" );
-	this.offImage = images.load( "images/outoff.png" );
+	this.onImage = images.outon;
+	this.offImage = images.outoff;
 
 	this.__proto__ = new DefaultGate( "OUT", this.onImage,
 		[

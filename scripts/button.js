@@ -2,13 +2,13 @@ Button = new Object();
 Button.images = new Object();
 Button.images.small = new Object();
 Button.images.small.up = new Object();
-Button.images.small.up.left = images.load( "images/btnsmallleft.png" );
-Button.images.small.up.mid = images.load( "images/btnsmallmid.png" );
-Button.images.small.up.right = images.load( "images/btnsmallright.png" );
+Button.images.small.up.left = images.btnsmallleft;
+Button.images.small.up.mid = images.btnsmallmid;
+Button.images.small.up.right = images.btnsmallright;
 Button.images.small.over = new Object();
-Button.images.small.over.left = images.load( "images/btnsmallleftover.png" );
-Button.images.small.over.mid = images.load( "images/btnsmallmidover.png" );
-Button.images.small.over.right = images.load( "images/btnsmallrightover.png" );
+Button.images.small.over.left = images.btnsmallleftover;
+Button.images.small.over.mid = images.btnsmallmidover;
+Button.images.small.over.right = images.btnsmallrightover;
 
 Button.Base = function( x, y, width, height, upImages, overImages, contents )
 {
