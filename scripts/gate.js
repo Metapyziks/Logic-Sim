@@ -246,31 +246,37 @@ function XnorGate()
 	}
 }
 
-function ConstInputOn()
+function ConstInput()
 {
-	this.__proto__ = new DefaultGate( "ON", images.conston, [],
-		[ 
-			new SocketInfo( SocketFace.bottom, 0.5, "Q" )
-		]
-	);
-	
-	this.func = function( gate, inputs )
-	{
-		return [ true ];
-	}
-}
+	this.onImage = images.conston;
+	this.offImage = images.constoff;
 
-function ConstInputOff()
-{
-	this.__proto__ = new DefaultGate( "OFF", images.constoff, [],
+	this.__proto__ = new DefaultGate( "IN", images.conston, [],
 		[ 
 			new SocketInfo( SocketFace.bottom, 0.5, "Q" )
 		]
 	);
 	
+	this.initialize = function( gate )
+	{
+		gate.on = false;
+	}
+	
+	this.click = function( gate )
+	{
+		gate.on = !gate.on;
+	}
+	
 	this.func = function( gate, inputs )
 	{
-		return [ false ];
+		return [ gate.on ];
+	}
+	
+	this.render = function( context, x, y, gate )
+	{
+		this.__proto__.render( context, x, y );
+		context.drawImage( gate != null && gate.on ? this.onImage : this.offImage,
+			x - this.width / 2, y - this.height / 2 );
 	}
 }
 

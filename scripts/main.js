@@ -38,8 +38,7 @@ function LogicSim()
 		def.addItem( new NorGate() );
 		def.addItem( new XnorGate() );
 		var inp = this.toolbar.addGroup( "Input" );
-		inp.addItem( new ConstInputOn() );
-		inp.addItem( new ConstInputOff() );
+		inp.addItem( new ConstInput() );
 		inp.addItem( new ClockInput() );
 		inp.addItem( new ToggleSwitch() );
 		inp.addItem( new PushSwitchA() );
