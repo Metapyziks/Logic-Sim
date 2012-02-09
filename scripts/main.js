@@ -8,6 +8,8 @@ function LogicSim()
 	
 	var myGridSize = 32;
 	var myGridImage = null;
+	
+	var myDeleteDown = false;
 
 	this.canvas = null;
 	this.context = null;
@@ -150,8 +152,12 @@ function LogicSim()
 		this.gates.splice( index, 1 );
 		
 		for( var i = 0; i < this.gates.length; ++ i )
+		{
 			if( this.gates[ i ].isLinked( gate ) )
 				this.gates[ i ].unlinkInput( gate );
+			if( gate.isLinked( this.gates[ i ] ) )
+				gate.unlinkInput( this.gates[ i ] );
+		}
 		
 		for( var i = 0; i < this.wireGroups.length; ++ i )
 		{
@@ -341,6 +347,21 @@ function LogicSim()
 		this.mouseY = y;
 		
 		this.toolbar.mouseMove( x, y );
+		
+		if( !myIsDragging && myDraggedGate != null && myDraggedGate.isMouseDown )
+		{
+			var pos = new Pos( x, y );
+			var gate = myDraggedGate;
+			var rect = new Rect( gate.x - gate.width / 2, gate.y - gate.height / 2,
+				gate.width, gate.height );
+			
+			if( !rect.contains( pos ) )
+			{
+				gate.mouseUp();
+				this.removeGate( gate );
+				myIsDragging = true;
+			}
+		}
 	}
 	
 	this.mouseDown = function( x, y )
@@ -360,16 +381,15 @@ function LogicSim()
 				var rect = new Rect( gate.x - gate.width / 2 + 8, gate.y - gate.height / 2 + 8,
 					gate.width - 16, gate.height - 16 );
 				
-				
 				if( rect.contains( pos ) )
 				{
-					if( window.event.ctrlKey )
-					{
+					if( myDeleteDown )
 						this.removeGate( gate );
-						this.startDragging( gate.type );
-					}
 					else
+					{
+						myDraggedGate = gate;
 						gate.mouseDown();
+					}
 					return;
 				}
 			}
@@ -418,6 +438,18 @@ function LogicSim()
 		
 		if( x < 256 )
 			this.toolbar.click( x, y );
+	}
+	
+	this.keyDown = function( e )
+	{
+		if( e.keyCode == 46 )
+			myDeleteDown = true;
+	}
+	
+	this.keyUp = function( e )
+	{
+		if( e.keyCode == 46 )
+			myDeleteDown = false;
 	}
 	
 	this.changeGridSize = function( size )
@@ -542,6 +574,16 @@ window.onclick = function( e )
 		logicSim.click( e.pageX, e.pageY );
 	else
 		logicSim.click( window.event.clientX, window.event.clientY );
+}
+
+window.onkeydown = function( e )
+{
+	logicSim.keyDown( e );
+}
+
+window.onkeyup = function( e )
+{
+	logicSim.keyUp( e );
 }
 
 function onResizeCanvas()
