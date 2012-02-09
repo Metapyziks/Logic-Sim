@@ -132,6 +132,27 @@ function LogicSim()
 		this.gates.push( gate );
 	}
 	
+	this.removeGate = function( gate )
+	{
+		var index = this.gates.indexOf( gate );
+		this.gates.splice( index, 1 );
+		
+		for( var i = 0; i < this.gates.length; ++ i )
+			if( this.gates[ i ].isLinked( gate ) )
+				this.gates[ i ].unlinkInput( gate );
+		
+		for( var i = 0; i < this.wireGroups.length; ++ i )
+		{
+			var group = this.wireGroups[ i ];
+			if( group.input != null && group.input.gate == gate )
+				group.input = null;
+				
+			for( var j = group.outputs.length - 1; j >= 0; -- j )
+				if( group.outputs[ j ].gate == gate )
+					group.outputs.splice( j, 1 );
+		}
+	}
+	
 	this.getCanPlace = function()
 	{
 		if( !myIsDragging )
@@ -315,7 +336,26 @@ function LogicSim()
 		if( x < 256 )
 			this.toolbar.mouseDown( x, y );
 		else
+		{
+			var pos = new Pos( x, y );
+		
+			for( var i = 0; i < this.gates.length; ++ i )
+			{
+				var gate = this.gates[ i ];
+				var rect = new Rect( gate.x - gate.width / 2 + 8, gate.y - gate.height / 2 + 8,
+					gate.width - 16, gate.height - 16 );
+				
+				
+				if( rect.contains( pos ) )
+				{
+					this.removeGate( gate );
+					this.startDragging( gate.type );
+					return;
+				}
+			}
+			
 			this.startWiring( x, y );
+		}
 	}
 	
 	this.mouseUp = function( x, y )

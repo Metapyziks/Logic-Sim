@@ -64,6 +64,12 @@ function Rect( x, y, width, height )
 		return this.left < rect.right && rect.left < this.right
 			&& this.top < rect.bottom && rect.top < this.bottom;
 	}
+	
+	this.contains = function( pos )
+	{
+		return pos.x >= this.left && pos.x <= this.right
+			&& pos.y >= this.top && pos.y <= this.bottom;
+	}
 }
 
 function Pos( x, y )

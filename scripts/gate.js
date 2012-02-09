@@ -217,6 +217,22 @@ function Gate( gateType, x, y )
 		myInLinks[ index ] = new Link( gate, output );
 	}
 	
+	this.isLinked = function( gate )
+	{
+		for( var i = 0; i < this.inputs.length; ++ i )
+			if( myInLinks[ i ] != null && myInLinks[ i ].gate == gate )
+				return true;
+		
+		return false;
+	}
+	
+	this.unlinkInput = function( gate )
+	{
+		for( var i = 0; i < this.inputs.length; ++ i )
+			if( myInLinks[ i ] != null && myInLinks[ i ].gate == gate )
+				myInLinks[ i ] = null;
+	}
+	
 	this.getOutput = function( output )
 	{
 		var index = this.outputs.indexOf( output );
