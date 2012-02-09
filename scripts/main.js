@@ -28,14 +28,20 @@ function LogicSim()
 		this.toolbar = new Toolbar();
 		var def = this.toolbar.addGroup( "Logic Gates" );
 		def.addItem( new BufferGate() );
-		def.addItem( new NotGate() );
 		def.addItem( new AndGate() );
 		def.addItem( new OrGate() );
 		def.addItem( new XorGate() );
+		def.addItem( new NotGate() );
+		def.addItem( new NandGate() );
+		def.addItem( new NorGate() );
+		def.addItem( new XnorGate() );
 		var inp = this.toolbar.addGroup( "Input" );
+		inp.addItem( new ConstInputOn() );
+		inp.addItem( new ConstInputOff() );
 		inp.addItem( new ClockInput() );
-		inp.addItem( new Switch() );
+		inp.addItem( new ToggleSwitch() );
 		var out = this.toolbar.addGroup( "Output" );
+		out.addItem( new OutputDisplay() );
 		
 		this.changeGridSize( 32 );
 		

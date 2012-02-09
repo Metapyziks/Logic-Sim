@@ -111,23 +111,6 @@ function BufferGate()
 	}
 }
 
-function NotGate()
-{
-	this.__proto__ = new DefaultGate( "NOT", images.load( "images/not.png" ),
-		[ 
-			new SocketInfo( SocketFace.left, 0.5, "A" )
-		],
-		[ 
-			new SocketInfo( SocketFace.right, 0.5, "Q" )
-		]
-	);
-	
-	this.func = function( gate, inputs )
-	{
-		return [ !inputs[ 0 ] ];
-	}
-}
-
 function AndGate()
 {
 	this.__proto__ = new DefaultGate( "AND", images.load( "images/and.png" ),
@@ -182,6 +165,105 @@ function XorGate()
 	}
 }
 
+function NotGate()
+{
+	this.__proto__ = new DefaultGate( "NOT", images.load( "images/not.png" ),
+		[ 
+			new SocketInfo( SocketFace.left, 0.5, "A" )
+		],
+		[ 
+			new SocketInfo( SocketFace.right, 0.5, "Q" )
+		]
+	);
+	
+	this.func = function( gate, inputs )
+	{
+		return [ !inputs[ 0 ] ];
+	}
+}
+
+function NandGate()
+{
+	this.__proto__ = new DefaultGate( "NAND", images.load( "images/nand.png" ),
+		[ 
+			new SocketInfo( SocketFace.left, 0.5 - 0.125, "A" ),
+			new SocketInfo( SocketFace.left, 0.5 + 0.125, "B" )
+		],
+		[ 
+			new SocketInfo( SocketFace.right, 0.5, "Q" )
+		]
+	);
+	
+	this.func = function( gate, inputs )
+	{
+		return [ !inputs[ 0 ] || !inputs[ 1 ] ];
+	}
+}
+
+function NorGate()
+{
+	this.__proto__ = new DefaultGate( "NOR", images.load( "images/nor.png" ),
+		[ 
+			new SocketInfo( SocketFace.left, 0.5 - 0.125, "A" ),
+			new SocketInfo( SocketFace.left, 0.5 + 0.125, "B" )
+		],
+		[ 
+			new SocketInfo( SocketFace.right, 0.5, "Q" )
+		]
+	);
+	
+	this.func = function( gate, inputs )
+	{
+		return [ !inputs[ 0 ] && !inputs[ 1 ] ];
+	}
+}
+
+function XnorGate()
+{
+	this.__proto__ = new DefaultGate( "XNOR", images.load( "images/xnor.png" ),
+		[ 
+			new SocketInfo( SocketFace.left, 0.5 - 0.125, "A" ),
+			new SocketInfo( SocketFace.left, 0.5 + 0.125, "B" )
+		],
+		[ 
+			new SocketInfo( SocketFace.right, 0.5, "Q" )
+		]
+	);
+	
+	this.func = function( gate, inputs )
+	{
+		return [ inputs[ 0 ] == inputs[ 1 ] ];
+	}
+}
+
+function ConstInputOn()
+{
+	this.__proto__ = new DefaultGate( "ON", images.load( "images/conston.png" ), [],
+		[ 
+			new SocketInfo( SocketFace.bottom, 0.5, "Q" )
+		]
+	);
+	
+	this.func = function( gate, inputs )
+	{
+		return [ true ];
+	}
+}
+
+function ConstInputOff()
+{
+	this.__proto__ = new DefaultGate( "OFF", images.load( "images/constoff.png" ), [],
+		[ 
+			new SocketInfo( SocketFace.bottom, 0.5, "Q" )
+		]
+	);
+	
+	this.func = function( gate, inputs )
+	{
+		return [ false ];
+	}
+}
+
 function ClockInput()
 {
 	this.__proto__ = new DefaultGate( "CLOCK", images.load( "images/clock.png" ), [],
@@ -192,11 +274,25 @@ function ClockInput()
 	
 	this.func = function( gate, inputs )
 	{
-		return [ new Date().getTime() % 1000 >= 500 ];
+		var period = 1000 / gate.freq;
+		return [ new Date().getTime() % period >= period / 2 ];
+	}
+	
+	this.initialize = function( gate )
+	{
+		gate.freq = 1;
+	}
+	
+	this.click = function( gate )
+	{
+		gate.freq *= 2;
+		
+		if( gate.freq >= 32 )
+			gate.freq = 0.125;
 	}
 }
 
-function Switch()
+function ToggleSwitch()
 {
 	this.openImage = images.load( "images/switchopen.png" );
 	this.closedImage = images.load( "images/switchclosed.png" );
@@ -229,6 +325,37 @@ function Switch()
 	{
 		this.__proto__.render( context, x, y );
 		context.drawImage( gate == null || gate.open ? this.openImage : this.closedImage,
+			x - this.width / 2, y - this.height / 2 );
+	}
+}
+
+function OutputDisplay()
+{
+	this.onImage = images.load( "images/outon.png" );
+	this.offImage = images.load( "images/outoff.png" );
+
+	this.__proto__ = new DefaultGate( "OUT", this.onImage,
+		[
+			new SocketInfo( SocketFace.top, 0.5, "A" ),
+		],
+		[]
+	);
+	
+	this.func = function( gate, inputs )
+	{
+		gate.on = inputs[ 0 ];
+		return [];
+	}
+	
+	this.initialize = function( gate )
+	{
+		gate.on = false;
+	}
+	
+	this.render = function( context, x, y, gate )
+	{
+		this.__proto__.render( context, x, y );
+		context.drawImage( gate == null || !gate.on ? this.offImage : this.onImage,
 			x - this.width / 2, y - this.height / 2 );
 	}
 }
