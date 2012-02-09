@@ -40,6 +40,8 @@ function LogicSim()
 		inp.addItem( new ConstInputOff() );
 		inp.addItem( new ClockInput() );
 		inp.addItem( new ToggleSwitch() );
+		inp.addItem( new PushSwitchA() );
+		inp.addItem( new PushSwitchB() );
 		var out = this.toolbar.addGroup( "Output" );
 		out.addItem( new OutputDisplay() );
 		
@@ -241,8 +243,11 @@ function LogicSim()
 	this.canPlaceWire = function()
 	{
 		var end = this.getWireEnd();
-		var wire = new Wire( myWireStart, end );
 		
+		if( myWireStart.equals( end ) )
+			return false;
+			
+		var wire = new Wire( myWireStart, end );
 		var input = null;
 		
 		for( var i = 0; i < this.wireGroups.length; ++ i )
@@ -363,6 +368,8 @@ function LogicSim()
 						this.removeGate( gate );
 						this.startDragging( gate.type );
 					}
+					else
+						gate.mouseDown();
 					return;
 				}
 			}
@@ -389,13 +396,16 @@ function LogicSim()
 			for( var i = 0; i < this.gates.length; ++ i )
 			{
 				var gate = this.gates[ i ];
-				var rect = new Rect( gate.x - gate.width / 2 + 8, gate.y - gate.height / 2 + 8,
-					gate.width - 16, gate.height - 16 );
 				
-				if( rect.contains( pos ) )
+				if( gate.isMouseDown )
 				{
-					gate.click();
-					return;
+					var rect = new Rect( gate.x - gate.width / 2 + 8, gate.y - gate.height / 2 + 8,
+						gate.width - 16, gate.height - 16 );
+					
+					if( rect.contains( pos ) )
+						gate.click();
+					
+					gate.mouseUp();
 				}
 			}
 		}
@@ -413,6 +423,17 @@ function LogicSim()
 	this.changeGridSize = function( size )
 	{
 		myGridSize = size;
+		myGridImage = document.createElement( "canvas" );
+		myGridImage.width = myGridSize * 2;
+		myGridImage.height = myGridSize * 2;
+		
+		var context = myGridImage.getContext( "2d" );
+		
+		context.fillStyle = "#CCCCCC";
+		context.fillRect( 0, 0, myGridSize * 2, myGridSize * 2 );
+		context.fillStyle = "#DDDDDD";
+		context.fillRect( 0, 0, myGridSize, myGridSize );
+		context.fillRect( myGridSize, myGridSize, myGridSize, myGridSize );
 	}
 
 	this.onResizeCanvas = function()
@@ -422,16 +443,9 @@ function LogicSim()
 	}
 
 	this.render = function()
-	{		
-		for( var x = this.toolbar.width; x < this.canvas.width; x += myGridSize )
-		{
-			for( var y = 0; y < this.canvas.height; y +=  myGridSize )
-			{
-				this.context.fillStyle = ( x % ( 2 * myGridSize ) == y % ( 2 * myGridSize ) )
-					? "#CCCCCC" : "#DDDDDD";
-				this.context.fillRect( x, y, myGridSize, myGridSize );
-			}
-		}
+	{
+		this.context.fillStyle = this.context.createPattern( myGridImage, "repeat" );
+		this.context.fillRect( 256, 0, this.canvas.width - 256, this.canvas.height );
 		
 		for( var i = 0; i < this.wireGroups.length; ++ i )
 			this.wireGroups[ i ].render( this.context );
@@ -449,8 +463,10 @@ function LogicSim()
 			if( !this.getCanPlace() )
 			{
 				var rect = myDraggedGate.getRect( myGridSize );
+				this.context.globalAlpha = 0.25;
 				this.context.fillStyle = "#FF0000";
 				this.context.fillRect( rect.left, rect.top, rect.width, rect.height );
+				this.context.globalAlpha = 1.0;
 			}
 			
 			myDraggedGate.x = goalX;

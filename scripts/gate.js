@@ -56,6 +56,16 @@ function GateType( name, width, height, inputs, outputs )
 		
 	}
 	
+	this.mouseDown = function( gate )
+	{
+	
+	}
+	
+	this.mouseUp = function( gate )
+	{
+	
+	}
+	
 	this.render = function( context, x, y, gate )
 	{
 		context.strokeStyle = "#000000";
@@ -297,7 +307,7 @@ function ToggleSwitch()
 	this.openImage = images.load( "images/switchopen.png" );
 	this.closedImage = images.load( "images/switchclosed.png" );
 
-	this.__proto__ = new DefaultGate( "SWITCH", this.openImage,
+	this.__proto__ = new DefaultGate( "TSWITCH", this.openImage,
 		[
 			new SocketInfo( SocketFace.left, 0.5, "A" ),
 		],
@@ -325,6 +335,90 @@ function ToggleSwitch()
 	{
 		this.__proto__.render( context, x, y );
 		context.drawImage( gate == null || gate.open ? this.openImage : this.closedImage,
+			x - this.width / 2, y - this.height / 2 );
+	}
+}
+
+function PushSwitchA()
+{
+	this.openImage = images.load( "images/pushswitchaopen.png" );
+	this.closedImage = images.load( "images/pushswitchaclosed.png" );
+
+	this.__proto__ = new DefaultGate( "PSWITCHA", this.openImage,
+		[
+			new SocketInfo( SocketFace.left, 0.5, "A" ),
+		],
+		[ 
+			new SocketInfo( SocketFace.right, 0.5, "Q" )
+		]
+	);
+	
+	this.func = function( gate, inputs )
+	{
+		return [ !gate.open && inputs[ 0 ] ];
+	}
+	
+	this.initialize = function( gate )
+	{
+		gate.open = true;
+	}
+	
+	this.mouseDown = function( gate )
+	{
+		gate.open = false;
+	}
+	
+	this.mouseUp = function( gate )
+	{
+		gate.open = true;
+	}
+	
+	this.render = function( context, x, y, gate )
+	{
+		this.__proto__.render( context, x, y );
+		context.drawImage( gate == null || gate.open ? this.openImage : this.closedImage,
+			x - this.width / 2, y - this.height / 2 );
+	}
+}
+
+function PushSwitchB()
+{
+	this.openImage = images.load( "images/pushswitchbopen.png" );
+	this.closedImage = images.load( "images/pushswitchbclosed.png" );
+
+	this.__proto__ = new DefaultGate( "PSWITCHB", this.closedImage,
+		[
+			new SocketInfo( SocketFace.left, 0.5, "A" ),
+		],
+		[ 
+			new SocketInfo( SocketFace.right, 0.5, "Q" )
+		]
+	);
+	
+	this.func = function( gate, inputs )
+	{
+		return [ !gate.open && inputs[ 0 ] ];
+	}
+	
+	this.initialize = function( gate )
+	{
+		gate.open = false;
+	}
+	
+	this.mouseDown = function( gate )
+	{
+		gate.open = true;
+	}
+	
+	this.mouseUp = function( gate )
+	{
+		gate.open = false;
+	}
+	
+	this.render = function( context, x, y, gate )
+	{
+		this.__proto__.render( context, x, y );
+		context.drawImage( gate != null && gate.open ? this.openImage : this.closedImage,
 			x - this.width / 2, y - this.height / 2 );
 	}
 }
@@ -387,6 +481,8 @@ function Gate( gateType, x, y )
 	this.x = x;
 	this.y = y;
 	
+	this.isMouseDown = false;
+	
 	this.width = this.type.width;
 	this.height = this.type.height;
 	
@@ -448,6 +544,18 @@ function Gate( gateType, x, y )
 	this.click = function()
 	{
 		this.type.click( this );
+	}
+	
+	this.mouseDown = function()
+	{
+		this.isMouseDown = true;
+		this.type.mouseDown( this );
+	}
+	
+	this.mouseUp = function()
+	{
+		this.isMouseDown = false;
+		this.type.mouseUp( this );
 	}
 	
 	this.step = function()
