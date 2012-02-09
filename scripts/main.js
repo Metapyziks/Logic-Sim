@@ -26,12 +26,15 @@ function LogicSim()
 		this.context = this.canvas.getContext( "2d" );
 		
 		this.toolbar = new Toolbar();
-		var def = this.toolbar.addGroup( "Default Gates" );
+		var def = this.toolbar.addGroup( "Logic Gates" );
 		def.addItem( new BufferGate() );
 		def.addItem( new NotGate() );
 		def.addItem( new AndGate() );
 		def.addItem( new OrGate() );
-		var cus = this.toolbar.addGroup( "Custom Gates" );
+		def.addItem( new XorGate() );
+		var inp = this.toolbar.addGroup( "Input" );
+		inp.addItem( new ClockInput() );
+		var out = this.toolbar.addGroup( "Output" );
 		
 		this.changeGridSize( 32 );
 		

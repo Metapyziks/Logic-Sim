@@ -154,6 +154,38 @@ function OrGate()
 	}
 }
 
+function XorGate()
+{
+	this.__proto__ = new DefaultGate( "XOR", images.load( "images/xor.png" ),
+		[ 
+			new SocketInfo( SocketFace.left, 0.5 - 0.125, "A" ),
+			new SocketInfo( SocketFace.left, 0.5 + 0.125, "B" )
+		],
+		[ 
+			new SocketInfo( SocketFace.right, 0.5, "Q" )
+		]
+	);
+	
+	this.func = function( inputs )
+	{
+		return [ inputs[ 0 ] ^ inputs[ 1 ] ];
+	}
+}
+
+function ClockInput()
+{
+	this.__proto__ = new DefaultGate( "CLOCK", images.load( "images/clock.png" ), [],
+		[ 
+			new SocketInfo( SocketFace.bottom, 0.5, "Q" )
+		]
+	);
+	
+	this.func = function( inputs )
+	{
+		return [ new Date().getTime() % 1000 >= 500 ];
+	}
+}
+
 function Link( gate, socket )
 {
 	this.gate = gate;
