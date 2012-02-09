@@ -19,6 +19,8 @@ function LogicSim()
 	this.mouseX = 0;
 	this.mouseY = 0;
 	
+	this.mosueDownPos = null;
+	
 	this.gates = new Array();
 	this.wireGroups = new Array();
 	
@@ -153,9 +155,9 @@ function LogicSim()
 		for( var i = 0; i < this.gates.length; ++ i )
 		{
 			if( this.gates[ i ].isLinked( gate ) )
-				this.gates[ i ].unlinkInput( gate );
+				this.gates[ i ].unlinkGate( gate );
 			if( gate.isLinked( this.gates[ i ] ) )
-				gate.unlinkInput( this.gates[ i ] );
+				gate.unlinkGate( this.gates[ i ] );
 		}
 		
 		for( var i = 0; i < this.wireGroups.length; ++ i )
@@ -340,6 +342,29 @@ function LogicSim()
 			this.wireGroups.push( wire.group );
 	}
 	
+	this.removeWire = function( wire )
+	{
+		this.removeWireGroup( wire.group );
+		
+		var wires = wire.group.getWires();
+		
+		for( var i = 0; i < wires.length; ++ i )
+		{
+			var w = wires[ i ];
+			if( w != wire )
+				this.placeWire( w.start, w.end );
+		}
+	}
+	
+	this.removeWireGroup = function( group )
+	{
+		var gindex = this.wireGroups.indexOf( group );
+		this.wireGroups.splice( gindex, 1 );
+		
+		group.removeAllOutputs();
+		group.removeInput();
+	}
+	
 	this.mouseMove = function( x, y )
 	{
 		this.mouseX = x;
@@ -368,6 +393,8 @@ function LogicSim()
 		this.mouseX = x;
 		this.mouseY = y;
 		
+		this.mouseDownPos = new Pos( x, y );
+		
 		if( x < 256 )
 			this.toolbar.mouseDown( x, y );
 		else
@@ -382,18 +409,14 @@ function LogicSim()
 				
 				if( rect.contains( pos ) )
 				{
-					if( myDeleteDown )
-						this.removeGate( gate );
-					else
-					{
-						myDraggedGate = gate;
-						gate.mouseDown();
-					}
+					myDraggedGate = gate;
+					gate.mouseDown();
 					return;
 				}
 			}
-		
-			this.startWiring( x, y );
+			
+			if( !myDeleteDown )
+				this.startWiring( x, y );
 		}
 	}
 	
@@ -411,6 +434,8 @@ function LogicSim()
 		else
 		{
 			var pos = new Pos( x, y );
+			
+			var deleted = false;
 		
 			for( var i = 0; i < this.gates.length; ++ i )
 			{
@@ -422,9 +447,40 @@ function LogicSim()
 						gate.width - 16, gate.height - 16 );
 					
 					if( rect.contains( pos ) )
-						gate.click();
+					{
+						if( myDeleteDown && !deleted )
+						{
+							this.removeGate( gate );
+							deleted = true;
+						}
+						else
+							gate.click();
+					}
 					
 					gate.mouseUp();
+				}
+			}
+			
+			if( myDeleteDown && !deleted )
+			{
+				var gsize = myGridSize / 4;
+				this.mouseDownPos.x = Math.round( this.mouseDownPos.x / gsize ) * gsize;
+				this.mouseDownPos.y = Math.round( this.mouseDownPos.y / gsize ) * gsize;
+				pos.x = Math.round( pos.x / gsize ) * gsize;
+				pos.y = Math.round( pos.y / gsize ) * gsize;
+				
+				if( this.mouseDownPos.equals( pos ) )
+				{
+					for( var i = 0; i < this.wireGroups.length; ++ i )
+					{
+						var group = this.wireGroups[ i ];
+						if( group.crossesPos( pos ) )
+						{
+							var wire = group.getWireAt( pos );
+							this.removeWire( wire );
+							break;
+						}
+					}
 				}
 			}
 		}
@@ -442,7 +498,12 @@ function LogicSim()
 	this.keyDown = function( e )
 	{
 		if( e.keyCode == 46 )
+		{
 			myDeleteDown = true;
+			
+			myIsDragging = false;
+			myDraggedGate = null;
+		}
 	}
 	
 	this.keyUp = function( e )

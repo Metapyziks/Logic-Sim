@@ -122,4 +122,9 @@ function Pos( x, y )
 	{
 		return this.x == pos.x && this.y == pos.y;
 	}
+	
+	this.toString = function()
+	{
+		return "(" + this.x + "," + this.y + ")";
+	}
 }

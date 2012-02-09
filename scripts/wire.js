@@ -8,6 +8,11 @@ function WireGroup( wire )
 	
 	this.isEmpty = false;
 	
+	this.getWires = function()
+	{
+		return myWires;
+	}
+	
 	this.canAddWire = function( wire )
 	{	
 		for( var i = 0; i < myWires.length; ++ i )
@@ -26,6 +31,15 @@ function WireGroup( wire )
 		return false;
 	}
 	
+	this.getWireAt = function( pos )
+	{
+		for( var i = 0; i < myWires.length; ++ i )
+			if( myWires[ i ].crossesPos( pos ) )
+				return myWires[ i ];
+		
+		return null;
+	}
+	
 	this.setInput = function( gate, output )
 	{
 		this.input = new Link( gate, output );
@@ -34,6 +48,17 @@ function WireGroup( wire )
 		{
 			var link = this.outputs[ i ];
 			link.gate.linkInput( this.input.gate, this.input.socket, link.socket );
+		}
+	}
+	
+	this.removeInput = function()
+	{
+		this.input = null;
+		
+		for( var i = 0; i < this.outputs.length; ++ i )
+		{
+			var link = this.outputs[ i ];
+			link.gate.unlinkInput( link.socket );
 		}
 	}
 	
@@ -48,6 +73,22 @@ function WireGroup( wire )
 			gate.linkInput( this.input.gate, this.input.socket, link.socket );
 			
 		this.outputs.push( link );
+	}
+	
+	this.removeOutput = function( link )
+	{
+		var index = this.outputs.indexOf( link );
+		this.outputs.splice( index, 1 );
+		
+		link.gate.unlinkInput( link.socket );
+	}
+	
+	this.removeAllOutputs = function()
+	{
+		for( var i = 0; i < this.outputs.length; ++ i )
+			this.outputs[ i ].gate.unlinkInput( this.outputs[ i ].socket );
+		
+		this.outputs = new Array();
 	}
 	
 	this.addWire = function( wire )

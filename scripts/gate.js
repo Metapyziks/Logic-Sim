@@ -534,11 +534,17 @@ function Gate( gateType, x, y )
 		return false;
 	}
 	
-	this.unlinkInput = function( gate )
+	this.unlinkGate = function( gate )
 	{
 		for( var i = 0; i < this.inputs.length; ++ i )
 			if( myInLinks[ i ] != null && myInLinks[ i ].gate == gate )
 				myInLinks[ i ] = null;
+	}
+	
+	this.unlinkInput = function( input )
+	{
+		var index = this.inputs.indexOf( input );
+		myInLinks[ index ] = null;
 	}
 	
 	this.getOutput = function( output )
