@@ -41,12 +41,22 @@ function GateType( name, width, height, inputs, outputs )
 	this.inputs = inputs;
 	this.outputs = outputs;
 	
-	this.func = function( inputs )
+	this.func = function( gate, inputs )
 	{
 		return [ false ];
 	}
 	
-	this.render = function( context, x, y )
+	this.initialize = function( gate )
+	{
+		
+	}
+	
+	this.click = function( gate )
+	{
+		
+	}
+	
+	this.render = function( context, x, y, gate )
 	{
 		context.strokeStyle = "#000000";
 		context.lineWidth = 2;
@@ -77,9 +87,9 @@ function DefaultGate( name, image, inputs, outputs )
 	
 	this.image = image;
 	
-	this.render = function( context, x, y )
+	this.render = function( context, x, y, gate )
 	{
-		this.__proto__.render( context, x, y );
+		this.__proto__.render( context, x, y, gate );
 		context.drawImage( this.image, x - this.width / 2, y - this.height / 2 );
 	}
 }
@@ -95,7 +105,7 @@ function BufferGate()
 		]
 	);
 	
-	this.func = function( inputs )
+	this.func = function( gate, inputs )
 	{
 		return [ inputs[ 0 ] ];
 	}
@@ -112,7 +122,7 @@ function NotGate()
 		]
 	);
 	
-	this.func = function( inputs )
+	this.func = function( gate, inputs )
 	{
 		return [ !inputs[ 0 ] ];
 	}
@@ -130,7 +140,7 @@ function AndGate()
 		]
 	);
 	
-	this.func = function( inputs )
+	this.func = function( gate, inputs )
 	{
 		return [ inputs[ 0 ] && inputs[ 1 ] ];
 	}
@@ -148,7 +158,7 @@ function OrGate()
 		]
 	);
 	
-	this.func = function( inputs )
+	this.func = function( gate, inputs )
 	{
 		return [ inputs[ 0 ] || inputs[ 1 ] ];
 	}
@@ -166,7 +176,7 @@ function XorGate()
 		]
 	);
 	
-	this.func = function( inputs )
+	this.func = function( gate, inputs )
 	{
 		return [ inputs[ 0 ] ^ inputs[ 1 ] ];
 	}
@@ -180,9 +190,46 @@ function ClockInput()
 		]
 	);
 	
-	this.func = function( inputs )
+	this.func = function( gate, inputs )
 	{
 		return [ new Date().getTime() % 1000 >= 500 ];
+	}
+}
+
+function Switch()
+{
+	this.openImage = images.load( "images/switchopen.png" );
+	this.closedImage = images.load( "images/switchclosed.png" );
+
+	this.__proto__ = new DefaultGate( "SWITCH", this.openImage,
+		[
+			new SocketInfo( SocketFace.left, 0.5, "A" ),
+		],
+		[ 
+			new SocketInfo( SocketFace.right, 0.5, "Q" )
+		]
+	);
+	
+	this.func = function( gate, inputs )
+	{
+		return [ !gate.open && inputs[ 0 ] ];
+	}
+	
+	this.initialize = function( gate )
+	{
+		gate.open = true;
+	}
+	
+	this.click = function( gate )
+	{
+		gate.open = !gate.open;
+	}
+	
+	this.render = function( context, x, y, gate )
+	{
+		this.__proto__.render( context, x, y );
+		context.drawImage( gate == null || gate.open ? this.openImage : this.closedImage,
+			x - this.width / 2, y - this.height / 2 );
 	}
 }
 
@@ -271,6 +318,11 @@ function Gate( gateType, x, y )
 		return myOutputs[ index ];
 	}
 	
+	this.click = function()
+	{
+		this.type.click( this );
+	}
+	
 	this.step = function()
 	{
 		var inVals = new Array();
@@ -282,7 +334,7 @@ function Gate( gateType, x, y )
 				? false : link.getValue();
 		}
 		
-		myNextOutputs = this.type.func( inVals );
+		myNextOutputs = this.type.func( this, inVals );
 	}
 	
 	this.commit = function()
@@ -292,7 +344,7 @@ function Gate( gateType, x, y )
 	
 	this.render = function( context )
 	{
-		this.type.render( context, this.x, this.y );
+		this.type.render( context, this.x, this.y, this );
 		
 		context.strokeStyle = "#000000";
 		context.lineWidth = 2;
@@ -324,4 +376,6 @@ function Gate( gateType, x, y )
 			context.closePath();
 		}
 	}
+	
+	this.type.initialize( this );
 }

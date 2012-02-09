@@ -34,6 +34,7 @@ function LogicSim()
 		def.addItem( new XorGate() );
 		var inp = this.toolbar.addGroup( "Input" );
 		inp.addItem( new ClockInput() );
+		inp.addItem( new Switch() );
 		var out = this.toolbar.addGroup( "Output" );
 		
 		this.changeGridSize( 32 );
@@ -351,12 +352,15 @@ function LogicSim()
 				
 				if( rect.contains( pos ) )
 				{
-					this.removeGate( gate );
-					this.startDragging( gate.type );
+					if( window.event.ctrlKey )
+					{
+						this.removeGate( gate );
+						this.startDragging( gate.type );
+					}
 					return;
 				}
 			}
-			
+		
 			this.startWiring( x, y );
 		}
 	}
@@ -370,9 +374,25 @@ function LogicSim()
 			this.stopDragging();
 		else if( myIsWiring )
 			this.stopWiring();
-		
-		if( x < 256 )
+		else if( x < 256 )
 			this.toolbar.mouseUp( x, y );
+		else
+		{
+			var pos = new Pos( x, y );
+		
+			for( var i = 0; i < this.gates.length; ++ i )
+			{
+				var gate = this.gates[ i ];
+				var rect = new Rect( gate.x - gate.width / 2 + 8, gate.y - gate.height / 2 + 8,
+					gate.width - 16, gate.height - 16 );
+				
+				if( rect.contains( pos ) )
+				{
+					gate.click();
+					return;
+				}
+			}
+		}
 	}
 	
 	this.click = function( x, y )
