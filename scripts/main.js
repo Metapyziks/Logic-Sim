@@ -47,6 +47,7 @@ function LogicSim()
 		inp.addItem( new PushSwitchB() );
 		var out = this.toolbar.addGroup( "Output" );
 		out.addItem( new OutputDisplay() );
+		out.addItem( new SevenSegDisplay() );
 		
 		this.changeGridSize( 32 );
 		

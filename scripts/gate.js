@@ -460,6 +460,52 @@ function OutputDisplay()
 	}
 }
 
+function SevenSegDisplay()
+{
+	this.baseImage = images.sevsegbase;
+	this.segImages =
+	[
+		images.sevsega, images.sevsegb, images.sevsegc, images.sevsegdp,
+		images.sevsegd, images.sevsege, images.sevsegf, images.sevsegg
+	];
+
+	this.__proto__ = new DefaultGate( "SEVSEG", this.baseImage,
+		[
+			new SocketInfo( SocketFace.right, 40 / 128, "A" ),
+			new SocketInfo( SocketFace.right, 56 / 128, "B" ),
+			new SocketInfo( SocketFace.right, 72 / 128, "C" ),
+			new SocketInfo( SocketFace.right, 88 / 128, "DP" ),
+			new SocketInfo( SocketFace.left,  88 / 128, "D" ),
+			new SocketInfo( SocketFace.left,  72 / 128, "E" ),
+			new SocketInfo( SocketFace.left,  56 / 128, "F" ),
+			new SocketInfo( SocketFace.left,  40 / 128, "G" )
+		],
+		[]
+	);
+	
+	this.func = function( gate, inputs )
+	{
+		gate.active = inputs;
+		return [];
+	}
+	
+	this.initialize = function( gate )
+	{
+		gate.active = [ false, false, false, false, false, false, false, false ];
+	}
+	
+	this.render = function( context, x, y, gate )
+	{
+		this.__proto__.render( context, x, y );
+		context.drawImage( this.baseImage, x - this.width / 2, y - this.height / 2 );
+		
+		if( gate != null )
+			for( var i = 0; i < 8; ++ i )
+				if( gate.active[ i ] )
+					context.drawImage( this.segImages[ i ], x - this.width / 2, y - this.height / 2 );
+	}
+}
+
 function Link( gate, socket )
 {
 	this.gate = gate;
