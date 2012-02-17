@@ -184,16 +184,13 @@ function Wire( start, end )
 		
 		for( var i = 0; i < myConnections.length; ++ i )
 		{
-			if( myConnections[ i ].isVertical() != this.isVertical() )
+			if( myConnections[ i ].isVertical() && !this.isVertical() )
 			{
 				var pos = this.crossPos( myConnections[ i ] );
-				if( !pos.equals( this.start ) && !pos.equals( this.end ) )
-				{			
-					context.beginPath();
-					context.arc( pos.x, pos.y, 3, 0, Math.PI * 2, true );
-					context.fill();
-					context.closePath();
-				}
+				context.beginPath();
+				context.arc( pos.x, pos.y, 3, 0, Math.PI * 2, true );
+				context.fill();
+				context.closePath();
 			}
 		}
 	}

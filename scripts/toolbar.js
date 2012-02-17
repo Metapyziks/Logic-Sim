@@ -237,9 +237,9 @@ function ToolbarGroup( toolbar, name )
 			for( var i = 0; i < this.items.length; ++i )
 			{
 				var imgX = ( i % ipr ) * ( this.itemSize + this.padding )
-					+ ( this.itemSize + this.padding ) / 2;
+					+ this.padding / 2;
 				var imgY = Math.floor( i / ipr ) * ( this.itemSize + this.padding ) + this.y + 24
-					+ ( this.itemSize + this.padding ) / 2;
+					+ this.padding / 2;
 				
 				this.items[ i ].render( context, imgX, imgY );
 			}

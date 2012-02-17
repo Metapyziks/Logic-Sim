@@ -6,7 +6,7 @@ function LogicSim()
 	var myIsWiring = false;
 	var myWireStart = null;
 	
-	var myGridSize = 32;
+	var myGridSize = 8;
 	var myGridImage = null;
 	
 	var myDeleteDown = false;
@@ -49,7 +49,7 @@ function LogicSim()
 		out.addItem( new OutputDisplay() );
 		out.addItem( new SevenSegDisplay() );
 		
-		this.changeGridSize( 32 );
+		this.changeGridSize( 8 );
 		
 		this.onResizeCanvas();
 	}
@@ -66,15 +66,25 @@ function LogicSim()
 		myDraggedGate = new Gate( gateType, this.mouseX, this.mouseY );
 	}
 	
+	this.getDraggedPosition = function()
+	{
+		var pos = new Pos( this.mouseX - myDraggedGate.width / 2,
+			this.mouseY - myDraggedGate.height / 2 );
+		
+		pos.x = Math.round( pos.x / myGridSize ) * myGridSize;
+		pos.y = Math.round( pos.y / myGridSize ) * myGridSize;
+		
+		return pos;
+	}
+	
 	this.stopDragging = function()
 	{
 		if( this.mouseX >= 256 )
 		{
-			var x = Math.round( this.mouseX / myGridSize ) * myGridSize;
-			var y = Math.round( this.mouseY / myGridSize ) * myGridSize;
+			var pos = this.getDraggedPosition();
 			
-			myDraggedGate.x = x;
-			myDraggedGate.y = y;
+			myDraggedGate.x = pos.x;
+			myDraggedGate.y = pos.y;
 			
 			if( this.getCanPlace() )
 				this.placeGate( myDraggedGate );
@@ -212,7 +222,7 @@ function LogicSim()
 	
 	this.startWiring = function( x, y )
 	{
-		var snap = myGridSize / 4;
+		var snap = 8;
 	
 		myIsWiring = true;
 		myWireStart = new Pos(
@@ -231,7 +241,7 @@ function LogicSim()
 	
 	this.getWireEnd = function()
 	{
-		var snap = myGridSize / 4;
+		var snap = 8;
 		
 		var pos = new Pos(
 			Math.round( this.mouseX / snap ) * snap,
@@ -373,12 +383,17 @@ function LogicSim()
 		
 		this.toolbar.mouseMove( x, y );
 		
-		if( !myIsDragging && myDraggedGate != null && myDraggedGate.isMouseDown )
+		if( myIsDragging )
+		{
+			var pos = this.getDraggedPosition();
+			myDraggedGate.x = pos.x;
+			myDraggedGate.y = pos.y;
+		}
+		else if( !myIsDragging && myDraggedGate != null && myDraggedGate.isMouseDown )
 		{
 			var pos = new Pos( x, y );
 			var gate = myDraggedGate;
-			var rect = new Rect( gate.x - gate.width / 2, gate.y - gate.height / 2,
-				gate.width, gate.height );
+			var rect = new Rect( gate.x, gate.y, gate.width, gate.height );
 			
 			if( !rect.contains( pos ) )
 			{
@@ -405,8 +420,7 @@ function LogicSim()
 			for( var i = 0; i < this.gates.length; ++ i )
 			{
 				var gate = this.gates[ i ];
-				var rect = new Rect( gate.x - gate.width / 2 + 8, gate.y - gate.height / 2 + 8,
-					gate.width - 16, gate.height - 16 );
+				var rect = new Rect( gate.x + 8, gate.y + 8, gate.width - 16, gate.height - 16 );
 				
 				if( rect.contains( pos ) )
 				{
@@ -444,8 +458,7 @@ function LogicSim()
 				
 				if( gate.isMouseDown )
 				{
-					var rect = new Rect( gate.x - gate.width / 2 + 8, gate.y - gate.height / 2 + 8,
-						gate.width - 16, gate.height - 16 );
+					var rect = new Rect( gate.x + 8, gate.y + 8, gate.width - 16, gate.height - 16 );
 					
 					if( rect.contains( pos ) )
 					{
@@ -464,7 +477,7 @@ function LogicSim()
 			
 			if( myDeleteDown && !deleted )
 			{
-				var gsize = myGridSize / 4;
+				var gsize = 8;
 				this.mouseDownPos.x = Math.round( this.mouseDownPos.x / gsize ) * gsize;
 				this.mouseDownPos.y = Math.round( this.mouseDownPos.y / gsize ) * gsize;
 				pos.x = Math.round( pos.x / gsize ) * gsize;
@@ -537,7 +550,7 @@ function LogicSim()
 
 	this.render = function()
 	{
-		this.context.fillStyle = this.context.createPattern( myGridImage, "repeat" );
+		this.context.fillStyle = "#FFFFFF"/*this.context.createPattern( myGridImage, "repeat" )*/;
 		this.context.fillRect( 256, 0, this.canvas.width - 256, this.canvas.height );
 		
 		for( var i = 0; i < this.wireGroups.length; ++ i )
@@ -549,10 +562,7 @@ function LogicSim()
 		this.toolbar.render( this.context );
 		
 		if( myIsDragging )
-		{
-			var goalX = Math.round( this.mouseX / myGridSize ) * myGridSize;
-			var goalY = Math.round( this.mouseY / myGridSize ) * myGridSize;
-			
+		{			
 			if( !this.getCanPlace() )
 			{
 				var rect = myDraggedGate.getRect( myGridSize );
@@ -562,8 +572,6 @@ function LogicSim()
 				this.context.globalAlpha = 1.0;
 			}
 			
-			myDraggedGate.x = goalX;
-			myDraggedGate.y = goalY;
 			myDraggedGate.render( this.context );
 		}
 		else if( myIsWiring )

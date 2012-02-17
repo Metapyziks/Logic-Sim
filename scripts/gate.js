@@ -20,13 +20,13 @@ function SocketInfo( face, offset, label )
 	{
 		return new Pos(
 			x + 
-			( ( this.face == SocketFace.left ) ? - gateType.width / 2
-			: ( this.face == SocketFace.right ) ? gateType.width / 2
-			: gateType.width * ( this.offset - 0.5 ) ),
+			( ( this.face == SocketFace.left ) ? 0
+			: ( this.face == SocketFace.right ) ? gateType.width
+			: this.offset * 8 ),
 			y +
-			( ( this.face == SocketFace.top ) ? - gateType.height / 2
-			: ( this.face == SocketFace.bottom ) ? gateType.height / 2
-			: gateType.height * ( this.offset - 0.5 ) )
+			( ( this.face == SocketFace.top ) ? 0
+			: ( this.face == SocketFace.bottom ) ? gateType.height
+			: this.offset * 8 )
 		);
 	}
 }
@@ -78,9 +78,9 @@ function GateType( name, width, height, inputs, outputs )
 			var end = inp.getPosition( this, x, y );
 			
 			if( inp.face == SocketFace.left || inp.face == SocketFace.right )
-				end.x = x;
+				end.x = x + this.width / 2;
 			else
-				end.y = y;
+				end.y = y + this.height / 2;
 				
 			context.beginPath();
 			context.moveTo( start.x, start.y );
@@ -91,27 +91,29 @@ function GateType( name, width, height, inputs, outputs )
 	}
 }
 
-function DefaultGate( name, image, inputs, outputs )
+function DefaultGate( name, image, renderOverride, inputs, outputs )
 {
 	this.__proto__ = new GateType( name, image.width, image.height, inputs, outputs );
 	
 	this.image = image;
+	this.renderOverride = renderOverride;
 	
 	this.render = function( context, x, y, gate )
 	{
 		this.__proto__.render( context, x, y, gate );
-		context.drawImage( this.image, x - this.width / 2, y - this.height / 2 );
+		if( !this.renderOverride )
+			context.drawImage( this.image, x, y );
 	}
 }
 
 function BufferGate()
 {
-	this.__proto__ = new DefaultGate( "BUF", images.buffer,
+	this.__proto__ = new DefaultGate( "BUF", images.buffer, false,
 		[ 
-			new SocketInfo( SocketFace.left, 0.5, "A" )
+			new SocketInfo( SocketFace.left, 2, "A" )
 		],
 		[ 
-			new SocketInfo( SocketFace.right, 0.5, "Q" )
+			new SocketInfo( SocketFace.right, 2, "Q" )
 		]
 	);
 	
@@ -123,13 +125,13 @@ function BufferGate()
 
 function AndGate()
 {
-	this.__proto__ = new DefaultGate( "AND", images.and,
+	this.__proto__ = new DefaultGate( "AND", images.and, false,
 		[ 
-			new SocketInfo( SocketFace.left, 0.5 - 0.125, "A" ),
-			new SocketInfo( SocketFace.left, 0.5 + 0.125, "B" )
+			new SocketInfo( SocketFace.left, 1, "A" ),
+			new SocketInfo( SocketFace.left, 3, "B" )
 		],
 		[ 
-			new SocketInfo( SocketFace.right, 0.5, "Q" )
+			new SocketInfo( SocketFace.right, 2, "Q" )
 		]
 	);
 	
@@ -141,13 +143,13 @@ function AndGate()
 
 function OrGate()
 {
-	this.__proto__ = new DefaultGate( "OR", images.or,
+	this.__proto__ = new DefaultGate( "OR", images.or, false,
 		[ 
-			new SocketInfo( SocketFace.left, 0.5 - 0.125, "A" ),
-			new SocketInfo( SocketFace.left, 0.5 + 0.125, "B" )
+			new SocketInfo( SocketFace.left, 1, "A" ),
+			new SocketInfo( SocketFace.left, 3, "B" )
 		],
 		[ 
-			new SocketInfo( SocketFace.right, 0.5, "Q" )
+			new SocketInfo( SocketFace.right, 2, "Q" )
 		]
 	);
 	
@@ -159,13 +161,13 @@ function OrGate()
 
 function XorGate()
 {
-	this.__proto__ = new DefaultGate( "XOR", images.xor,
+	this.__proto__ = new DefaultGate( "XOR", images.xor, false,
 		[ 
-			new SocketInfo( SocketFace.left, 0.5 - 0.125, "A" ),
-			new SocketInfo( SocketFace.left, 0.5 + 0.125, "B" )
+			new SocketInfo( SocketFace.left, 1, "A" ),
+			new SocketInfo( SocketFace.left, 3, "B" )
 		],
 		[ 
-			new SocketInfo( SocketFace.right, 0.5, "Q" )
+			new SocketInfo( SocketFace.right, 2, "Q" )
 		]
 	);
 	
@@ -177,12 +179,12 @@ function XorGate()
 
 function NotGate()
 {
-	this.__proto__ = new DefaultGate( "NOT", images.not,
+	this.__proto__ = new DefaultGate( "NOT", images.not, false,
 		[ 
-			new SocketInfo( SocketFace.left, 0.5, "A" )
+			new SocketInfo( SocketFace.left, 2, "A" )
 		],
 		[ 
-			new SocketInfo( SocketFace.right, 0.5, "Q" )
+			new SocketInfo( SocketFace.right, 2, "Q" )
 		]
 	);
 	
@@ -194,13 +196,13 @@ function NotGate()
 
 function NandGate()
 {
-	this.__proto__ = new DefaultGate( "NAND", images.nand,
+	this.__proto__ = new DefaultGate( "NAND", images.nand, false,
 		[ 
-			new SocketInfo( SocketFace.left, 0.5 - 0.125, "A" ),
-			new SocketInfo( SocketFace.left, 0.5 + 0.125, "B" )
+			new SocketInfo( SocketFace.left, 1, "A" ),
+			new SocketInfo( SocketFace.left, 3, "B" )
 		],
 		[ 
-			new SocketInfo( SocketFace.right, 0.5, "Q" )
+			new SocketInfo( SocketFace.right, 2, "Q" )
 		]
 	);
 	
@@ -212,13 +214,13 @@ function NandGate()
 
 function NorGate()
 {
-	this.__proto__ = new DefaultGate( "NOR", images.nor,
+	this.__proto__ = new DefaultGate( "NOR", images.nor, false,
 		[ 
-			new SocketInfo( SocketFace.left, 0.5 - 0.125, "A" ),
-			new SocketInfo( SocketFace.left, 0.5 + 0.125, "B" )
+			new SocketInfo( SocketFace.left, 1, "A" ),
+			new SocketInfo( SocketFace.left, 3, "B" )
 		],
 		[ 
-			new SocketInfo( SocketFace.right, 0.5, "Q" )
+			new SocketInfo( SocketFace.right, 2, "Q" )
 		]
 	);
 	
@@ -230,13 +232,13 @@ function NorGate()
 
 function XnorGate()
 {
-	this.__proto__ = new DefaultGate( "XNOR", images.xnor,
+	this.__proto__ = new DefaultGate( "XNOR", images.xnor, false,
 		[ 
-			new SocketInfo( SocketFace.left, 0.5 - 0.125, "A" ),
-			new SocketInfo( SocketFace.left, 0.5 + 0.125, "B" )
+			new SocketInfo( SocketFace.left, 1, "A" ),
+			new SocketInfo( SocketFace.left, 3, "B" )
 		],
 		[ 
-			new SocketInfo( SocketFace.right, 0.5, "Q" )
+			new SocketInfo( SocketFace.right, 2, "Q" )
 		]
 	);
 	
@@ -250,10 +252,10 @@ function ConstInput()
 {
 	this.onImage = images.conston;
 	this.offImage = images.constoff;
-
-	this.__proto__ = new DefaultGate( "IN", images.conston, [],
+	
+	this.__proto__ = new DefaultGate( "IN", images.conston, true, [],
 		[ 
-			new SocketInfo( SocketFace.bottom, 0.5, "Q" )
+			new SocketInfo( SocketFace.right, 2, "Q" )
 		]
 	);
 	
@@ -275,16 +277,15 @@ function ConstInput()
 	this.render = function( context, x, y, gate )
 	{
 		this.__proto__.render( context, x, y );
-		context.drawImage( gate != null && gate.on ? this.onImage : this.offImage,
-			x - this.width / 2, y - this.height / 2 );
+		context.drawImage( gate != null && gate.on ? this.onImage : this.offImage, x, y );
 	}
 }
 
 function ClockInput()
 {
-	this.__proto__ = new DefaultGate( "CLOCK", images.clock, [],
+	this.__proto__ = new DefaultGate( "CLOCK", images.clock, false, [],
 		[ 
-			new SocketInfo( SocketFace.bottom, 0.5, "Q" )
+			new SocketInfo( SocketFace.right, 2, "Q" )
 		]
 	);
 	
@@ -313,12 +314,12 @@ function ToggleSwitch()
 	this.openImage = images.switchopen;
 	this.closedImage = images.switchclosed;
 
-	this.__proto__ = new DefaultGate( "TSWITCH", this.openImage,
+	this.__proto__ = new DefaultGate( "TSWITCH", this.openImage, true,
 		[
-			new SocketInfo( SocketFace.left, 0.5, "A" ),
+			new SocketInfo( SocketFace.left, 2, "A" ),
 		],
 		[ 
-			new SocketInfo( SocketFace.right, 0.5, "Q" )
+			new SocketInfo( SocketFace.right, 2, "Q" )
 		]
 	);
 	
@@ -340,8 +341,7 @@ function ToggleSwitch()
 	this.render = function( context, x, y, gate )
 	{
 		this.__proto__.render( context, x, y );
-		context.drawImage( gate == null || gate.open ? this.openImage : this.closedImage,
-			x - this.width / 2, y - this.height / 2 );
+		context.drawImage( gate == null || gate.open ? this.openImage : this.closedImage, x, y );
 	}
 }
 
@@ -350,12 +350,12 @@ function PushSwitchA()
 	this.openImage = images.pushswitchaopen;
 	this.closedImage = images.pushswitchaclosed;
 
-	this.__proto__ = new DefaultGate( "PSWITCHA", this.openImage,
+	this.__proto__ = new DefaultGate( "PSWITCHA", this.openImage, true,
 		[
-			new SocketInfo( SocketFace.left, 0.5, "A" ),
+			new SocketInfo( SocketFace.left, 2, "A" ),
 		],
 		[ 
-			new SocketInfo( SocketFace.right, 0.5, "Q" )
+			new SocketInfo( SocketFace.right, 2, "Q" )
 		]
 	);
 	
@@ -382,8 +382,7 @@ function PushSwitchA()
 	this.render = function( context, x, y, gate )
 	{
 		this.__proto__.render( context, x, y );
-		context.drawImage( gate == null || gate.open ? this.openImage : this.closedImage,
-			x - this.width / 2, y - this.height / 2 );
+		context.drawImage( gate == null || gate.open ? this.openImage : this.closedImage, x, y );
 	}
 }
 
@@ -392,12 +391,12 @@ function PushSwitchB()
 	this.openImage = images.pushswitchbopen;
 	this.closedImage = images.pushswitchbclosed;
 
-	this.__proto__ = new DefaultGate( "PSWITCHB", this.closedImage,
+	this.__proto__ = new DefaultGate( "PSWITCHB", this.closedImage, true,
 		[
-			new SocketInfo( SocketFace.left, 0.5, "A" ),
+			new SocketInfo( SocketFace.left, 2, "A" ),
 		],
 		[ 
-			new SocketInfo( SocketFace.right, 0.5, "Q" )
+			new SocketInfo( SocketFace.right, 2, "Q" )
 		]
 	);
 	
@@ -424,8 +423,7 @@ function PushSwitchB()
 	this.render = function( context, x, y, gate )
 	{
 		this.__proto__.render( context, x, y );
-		context.drawImage( gate != null && gate.open ? this.openImage : this.closedImage,
-			x - this.width / 2, y - this.height / 2 );
+		context.drawImage( gate != null && gate.open ? this.openImage : this.closedImage, x, y );
 	}
 }
 
@@ -434,9 +432,9 @@ function OutputDisplay()
 	this.onImage = images.outon;
 	this.offImage = images.outoff;
 
-	this.__proto__ = new DefaultGate( "OUT", this.onImage,
+	this.__proto__ = new DefaultGate( "OUT", this.onImage, true,
 		[
-			new SocketInfo( SocketFace.top, 0.5, "A" ),
+			new SocketInfo( SocketFace.left, 2, "A" ),
 		],
 		[]
 	);
@@ -455,8 +453,7 @@ function OutputDisplay()
 	this.render = function( context, x, y, gate )
 	{
 		this.__proto__.render( context, x, y );
-		context.drawImage( gate == null || !gate.on ? this.offImage : this.onImage,
-			x - this.width / 2, y - this.height / 2 );
+		context.drawImage( gate == null || !gate.on ? this.offImage : this.onImage, x, y );
 	}
 }
 
@@ -469,16 +466,16 @@ function SevenSegDisplay()
 		images.sevsegd, images.sevsege, images.sevsegf, images.sevsegg
 	];
 
-	this.__proto__ = new DefaultGate( "SEVSEG", this.baseImage,
+	this.__proto__ = new DefaultGate( "SEVSEG", this.baseImage, true,
 		[
-			new SocketInfo( SocketFace.right, 40 / 128, "A" ),
-			new SocketInfo( SocketFace.right, 56 / 128, "B" ),
-			new SocketInfo( SocketFace.right, 72 / 128, "C" ),
-			new SocketInfo( SocketFace.right, 88 / 128, "DP" ),
-			new SocketInfo( SocketFace.left,  88 / 128, "D" ),
-			new SocketInfo( SocketFace.left,  72 / 128, "E" ),
-			new SocketInfo( SocketFace.left,  56 / 128, "F" ),
-			new SocketInfo( SocketFace.left,  40 / 128, "G" )
+			new SocketInfo( SocketFace.right, 2, "A" ),
+			new SocketInfo( SocketFace.right, 4, "B" ),
+			new SocketInfo( SocketFace.right, 6, "C" ),
+			new SocketInfo( SocketFace.right, 8, "DP" ),
+			new SocketInfo( SocketFace.left,  8, "D" ),
+			new SocketInfo( SocketFace.left,  6, "E" ),
+			new SocketInfo( SocketFace.left,  4, "F" ),
+			new SocketInfo( SocketFace.left,  2, "G" )
 		],
 		[]
 	);
@@ -497,12 +494,12 @@ function SevenSegDisplay()
 	this.render = function( context, x, y, gate )
 	{
 		this.__proto__.render( context, x, y );
-		context.drawImage( this.baseImage, x - this.width / 2, y - this.height / 2 );
+		context.drawImage( this.baseImage, x, y );
 		
 		if( gate != null )
 			for( var i = 0; i < 8; ++ i )
 				if( gate.active[ i ] )
-					context.drawImage( this.segImages[ i ], x - this.width / 2, y - this.height / 2 );
+					context.drawImage( this.segImages[ i ], x, y );
 	}
 }
 
@@ -552,10 +549,10 @@ function Gate( gateType, x, y )
 		if( !gridSize )
 			gridSize = 1;
 	
-		var rl = Math.round( this.x - this.width / 2 );
-		var rt = Math.round( this.y - this.height / 2 );
-		var rr = Math.round( this.x + this.width / 2 );
-		var rb = Math.round( this.y + this.height / 2 );
+		var rl = Math.round( this.x );
+		var rt = Math.round( this.y );
+		var rr = Math.round( this.x + this.width );
+		var rb = Math.round( this.y + this.height );
 		
 		rl = Math.floor( rl / gridSize ) * gridSize;
 		rt = Math.floor( rt / gridSize ) * gridSize;
