@@ -65,6 +65,16 @@ function GateType(name, width, height, inputs, outputs)
 	{
 	
 	}
+
+	this.saveData = function(gate)
+	{
+		return null;
+	}
+
+	this.loadData = function(gate, data)
+	{
+
+	}
 	
 	this.render = function(context, x, y, gate)
 	{
@@ -275,6 +285,16 @@ function ConstInput()
 	{
 		return [gate.on];
 	}
+
+	this.saveData = function(gate)
+	{
+		return gate.on;
+	}
+
+	this.loadData = function(gate, data)
+	{
+		gate.on = data;
+	}
 	
 	this.render = function(context, x, y, gate)
 	{
@@ -300,6 +320,16 @@ function ClockInput()
 	this.initialize = function(gate)
 	{
 		gate.freq = 1;
+	}
+
+	this.saveData = function(gate)
+	{
+		return gate.freq;
+	}
+
+	this.loadData = function(gate, data)
+	{
+		gate.freq = data;
 	}
 	
 	this.click = function(gate)
@@ -338,6 +368,16 @@ function ToggleSwitch()
 	this.click = function(gate)
 	{
 		gate.open = !gate.open;
+	}
+
+	this.saveData = function(gate)
+	{
+		return gate.open;
+	}
+
+	this.loadData = function(gate, data)
+	{
+		gate.open = data;
 	}
 	
 	this.render = function(context, x, y, gate)
@@ -642,6 +682,16 @@ function Gate(gateType, x, y)
 	this.commit = function()
 	{
 		myOutputs = myNextOutputs;
+	}
+
+	this.saveData = function()
+	{
+		return this.type.saveData(this);
+	}
+
+	this.loadData = function(data)
+	{
+		this.type.loadData(this, data);
 	}
 	
 	this.render = function(context)

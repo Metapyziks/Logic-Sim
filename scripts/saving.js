@@ -10,7 +10,8 @@ Saving.save = function()
             t: gate.type.ctorname,
             x: gate.x,
             y: gate.y,
-            o: gate.getOutputs()
+            o: gate.getOutputs(),
+            d: gate.saveData()
         });
     }
 
@@ -47,5 +48,12 @@ Saving.load = function()
         var gate = new Gate(new ctor(), info.x, info.y);
         logicSim.placeGate(gate);
         gate.setOutputs(info.o);
+        gate.loadData(info.d);
+    }
+
+    for (var i = 0; i < obj.wires.length; ++i)
+    {
+        var info = obj.wires[i];
+        logicSim.placeWire(new Pos(info.sx, info.sy), new Pos(info.ex, info.ey));
     }
 }
