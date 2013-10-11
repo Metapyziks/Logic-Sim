@@ -102,7 +102,7 @@ function ToolbarGroup(toolbar, name)
 	this.items = new Array();
 	
 	this.padding = 16;
-	this.itemSize = 64;
+	this.minItemWidth = 80;
 	
 	this.y = 0;
 	
@@ -110,16 +110,49 @@ function ToolbarGroup(toolbar, name)
 	this.curDelta = 1.0;
 	
 	this.openButton = new Button.Small(this.toolbar.width - 28, 0, 24);
-	
+
 	this.getItemsPerRow = function()
 	{		
-		return Math.max(Math.floor(this.toolbar.width / (this.itemSize + this.padding)), 1);
+		return Math.max(Math.floor(this.toolbar.width / this.minItemWidth), 1);
+	}
+
+	this.getItemWidth = function()
+	{
+		return this.toolbar.width / this.getItemsPerRow();
+	}
+
+	this.getRowCount = function()
+	{
+		return Math.ceil(this.items.length / this.getItemsPerRow());
+	}
+
+	this.getRowHeight = function(row)
+	{
+		var start = this.getItemsPerRow() * row;
+		var end = start + this.getItemsPerRow();
+
+		var height = 0;
+
+		for (var i = start; i < Math.min(end, this.items.length); ++i)
+			height = Math.max(height, this.items[i].height);
+
+		return height + this.padding;
+	}
+
+	this.getRowOffset = function(row)
+	{
+		row = Math.min(row, this.getRowCount());
+		
+		var height = 0;
+		for (var i = 0; i < row; ++ i)
+			height += this.getRowHeight(i);
+
+		return height;
 	}
 	
 	this.getInnerHeight = function()
 	{
-		var rows = Math.ceil(this.items.length / this.getItemsPerRow());
-		var openSize = rows * (this.itemSize + this.padding);
+		var openSize = this.getRowOffset(this.getRowCount());
 		
 		this.curDelta += Math.max((1.0 - this.curDelta) / 4.0, 1.0 / openSize);
 		
@@ -174,16 +207,18 @@ function ToolbarGroup(toolbar, name)
 		else
 		{
 			var ipr = this.getItemsPerRow();
+			var wid = this.getItemWidth();
 			for(var i = 0; i < this.items.length; ++i)
 			{
-				var imgX = (i % ipr) * (this.itemSize + this.padding)
-					+ this.padding / 2;
-				var imgY = Math.floor(i / ipr) * (this.itemSize + this.padding) + this.y + 24
-					+ this.padding / 2;
+				var item = this.items[i];
+				var row = Math.floor(i / ipr);
+				var imgX = (i % ipr) * wid + (wid - item.width) / 2;
+				var imgY = this.getRowOffset(row) + this.y + 24
+					+ (this.getRowHeight(row) - item.height) / 2;
 					
-				if(x >= imgX && y >= imgY && x < imgX + this.itemSize && y < imgY + this.itemSize)
+				if(x >= imgX && y >= imgY && x < imgX + item.width && y < imgY + item.height)
 				{
-					logicSim.startDragging(this.items[i]);
+					logicSim.startDragging(item);
 					break;
 				}
 			}
@@ -233,15 +268,16 @@ function ToolbarGroup(toolbar, name)
 		if(this.isOpen && this.curDelta > 0.9)
 		{
 			var ipr = this.getItemsPerRow();
-			
+			var wid = this.getItemWidth();			
 			for(var i = 0; i < this.items.length; ++i)
 			{
-				var imgX = (i % ipr) * (this.itemSize + this.padding)
-					+ this.padding / 2;
-				var imgY = Math.floor(i / ipr) * (this.itemSize + this.padding) + this.y + 24
-					+ this.padding / 2;
+				var item = this.items[i];
+				var row = Math.floor(i / ipr);
+				var imgX = (i % ipr) * wid + (wid - item.width) / 2;
+				var imgY = this.getRowOffset(row) + this.y + 24
+					+ (this.getRowHeight(row) - item.height) / 2;
 				
-				this.items[i].render(context, imgX, imgY);
+				this.items[i].render(context, Math.round(imgX), imgY);
 			}
 		}
 		
