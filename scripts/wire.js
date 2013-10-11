@@ -184,9 +184,15 @@ function Wire( start, end )
 		
 		for( var i = 0; i < myConnections.length; ++ i )
 		{
-			if( myConnections[ i ].isVertical() && !this.isVertical() )
+			var other = myConnections[ i ];
+			if( other.isVertical() && !this.isVertical() )
 			{
-				var pos = this.crossPos( myConnections[ i ] );
+				var pos = this.crossPos( other );
+
+				if ( ( pos.equals(this.start) || pos.equals(this.end) )
+					&& ( pos.equals(other.start) || pos.equals(other.end) ) )
+					continue;
+
 				context.beginPath();
 				context.arc( pos.x, pos.y, 3, 0, Math.PI * 2, true );
 				context.fill();
