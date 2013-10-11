@@ -35,6 +35,11 @@ Button.Base = function(x, y, width, height, upImages, overImages, contents)
 	{
 		this.mouseOver = this.isPositionOver(mouseX, mouseY);
 	}
+
+	this.mouseDown = function(mouseX, mouseY)
+	{
+
+	}
 	
 	this.render = function(context)
 	{
@@ -46,11 +51,22 @@ Button.Base = function(x, y, width, height, upImages, overImages, contents)
 		context.fillRect(1, 0, this.width - 2, this.height);
 		context.drawImage(imgs[2], this.width - 1, 0);
 		
-		if(this.image)
+		if (this.image)
+		{
 			context.drawImage(this.image, (this.width - this.image.width) / 2,
 				(this.height - this.image.height) / 2);
-		else
+		}
+		else if (this.text)
 		{
+			context.fillStyle = "#FFFFFF";
+			context.font = "11px sans-serif";
+  			context.textAlign = "center";
+
+			var size = context.measureText(this.text);
+
+			context.fillText(this.text, this.width / 2, 12);
+
+  			context.textAlign = "left";
 		}
 			
 		context.translate(-this.x, -this.y);

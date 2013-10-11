@@ -23,6 +23,8 @@ function LogicSim()
 	
 	this.gates = new Array();
 	this.wireGroups = new Array();
+
+	this.customGroup = null;
 	
 	this.initialize = function()
 	{
@@ -45,6 +47,7 @@ function LogicSim()
 		grp.addItem(new ToggleSwitch());
 		grp.addItem(new PushSwitchA());
 		grp.addItem(new PushSwitchB());
+		grp.addItem(new ICInput());
 		grp = this.toolbar.addGroup("Flip Flops");
 		grp.addItem(new DFlipFlop());
 		grp = this.toolbar.addGroup("Integrated Circuits");
@@ -54,6 +57,12 @@ function LogicSim()
 		grp = this.toolbar.addGroup("Output");
 		grp.addItem(new OutputDisplay());
 		grp.addItem(new SevenSegDisplay());
+		grp.addItem(new ICOutput());
+
+		this.customGroup = this.toolbar.addGroup("Custom Circuits");
+		this.customGroup.addButton(32, "Save", function (x, y) {
+
+		});
 		
 		this.changeGridSize(16);
 

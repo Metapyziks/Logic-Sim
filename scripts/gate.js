@@ -681,6 +681,36 @@ function SevenSegDecoder()
 	}
 }
 
+function ICInput()
+{
+	this.__proto__ = new DefaultGate("ICINPUT", images.input, false,
+		[],
+		[
+			new SocketInfo(SocketFace.right, 2, "A")
+		]
+	);
+	
+	this.func = function(gate, inputs)
+	{
+		return [false];
+	}
+}
+
+function ICOutput()
+{
+	this.__proto__ = new DefaultGate("ICOUTPUT", images.output, false,
+		[
+			new SocketInfo(SocketFace.left, 2, "A")
+		],
+		[]
+	);
+	
+	this.func = function(gate, inputs)
+	{
+		return [];
+	}
+}
+
 function Link(gate, socket)
 {
 	this.gate = gate;

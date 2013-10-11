@@ -100,6 +100,7 @@ function ToolbarGroup(toolbar, name)
 
 	this.name = name;
 	this.items = new Array();
+	this.buttons = new Array();
 	
 	this.padding = 16;
 	this.minItemWidth = 80;
@@ -109,7 +110,20 @@ function ToolbarGroup(toolbar, name)
 	this.isOpen = true;
 	this.curDelta = 1.0;
 	
-	this.openButton = new Button.Small(this.toolbar.width - 28, 0, 24);
+	var self = this;
+
+	this.openButton = new Button.Small(0, 0, 24);
+	this.openButton.mouseDown = function(mouseX, mouseY)
+	{
+		if (self.items.length != 0)
+		{
+			if(self.isOpen)
+				self.close();
+			else
+				self.open();
+		}
+	}
+	this.buttons.push(this.openButton);
 
 	this.getItemsPerRow = function()
 	{		
@@ -172,6 +186,13 @@ function ToolbarGroup(toolbar, name)
 		this.items.push(item);
 	}
 	
+	this.addButton = function(width, contents, mouseDown)
+	{
+		var btn = new Button.Small(0, 0, width, contents);
+		btn.mouseDown = mouseDown;
+		this.buttons.push(btn);
+	}
+
 	this.open = function()
 	{
 		if(!this.isOpen)
@@ -192,20 +213,24 @@ function ToolbarGroup(toolbar, name)
 	
 	this.mouseMove = function(x, y)
 	{
-		this.openButton.mouseMove(x, y);
+		for (var i = this.buttons.length - 1; i >= 0; i--)
+			this.buttons[i].mouseMove(x, y);
 	}
 	
 	this.mouseDown = function(x, y)
 	{
-		if(this.openButton.isPositionOver(x, y))
-		{
-			if(this.isOpen)
-				this.close();
-			else
-				this.open();
-		}
-		else
-		{
+		if (y <= this.y + 24) {
+			for (var i = this.buttons.length - 1; i >= 0; i--)
+			{
+				var btn = this.buttons[i];
+				if (btn == this.openButton && this.items.length == 0) continue;
+				if (btn.isPositionOver(x, y))
+				{
+					btn.mouseDown(x, y)
+					break;
+				}
+			}
+		} else {
 			var ipr = this.getItemsPerRow();
 			var wid = this.getItemWidth();
 			for(var i = 0; i < this.items.length; ++i)
@@ -246,16 +271,25 @@ function ToolbarGroup(toolbar, name)
 		context.drawImage(this.toolbar.sepimage.end, this.toolbar.width - 2, 0);
 		
 		context.translate(0, -this.y);
-		
-		this.openButton.y = this.y + 4;
+
 		this.openButton.image = this.isOpen ? this.toolbar.arrimage.up : this.toolbar.arrimage.down;
-		this.openButton.render(context);
 		
+		var btnx = this.toolbar.width;
+		for (var i = 0; i < this.buttons.length; ++i)
+		{
+			var btn = this.buttons[i];
+			if (btn == this.openButton && this.items.length == 0) continue;
+			btn.y = this.y + 4;
+			btnx -= btn.width + 4;
+			btn.x = btnx;
+			btn.render(context);
+		}
+
 		context.translate(0, this.y);
 		
 		context.fillStyle = "#FFFFFF";
 		context.font = "bold 12px sans-serif";
-		context.shadowOffsetX = 1;
+		context.shadowOffsetX = 0;
 		context.shadowOffsetY = -1;
 		context.shadowColor = "#000000";
 		context.fillText(this.name, 4, 16, this.toolbar.width - 8);
