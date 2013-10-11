@@ -220,9 +220,9 @@ function ToolbarGroup( toolbar, name )
 		
 		context.fillStyle = "#FFFFFF";
 		context.font = "bold 12px sans-serif";
-		context.shadowOffsetX = 2;
-		context.shadowOffsetY = -2;
-		context.shadowColor = "#EEEEEE";
+		context.shadowOffsetX = 1;
+		context.shadowOffsetY = -1;
+		context.shadowColor = "#000000";
 		context.fillText( this.name, 4, 16, this.toolbar.width - 8 );
 		
 		context.shadowOffsetX = 0;
