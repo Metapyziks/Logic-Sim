@@ -13,45 +13,45 @@ function Toolbar()
 	
 	this.groups = new Array();
 	
-	this.addGroup = function( name )
+	this.addGroup = function(name)
 	{
-		var group = new ToolbarGroup( this, name );
-		this.groups.push( group );
+		var group = new ToolbarGroup(this, name);
+		this.groups.push(group);
 		return group;
 	}
 	
-	this.render = function( context )
+	this.render = function(context)
 	{		
 		context.fillStyle = "#FFFFFF";
-		context.fillRect( 0, 0, this.width, window.innerHeight );
+		context.fillRect(0, 0, this.width, window.innerHeight);
 		
 		var yPos = 0;
-		for( var i = 0; i < this.groups.length; ++ i )
+		for(var i = 0; i < this.groups.length; ++ i)
 		{
-			this.groups[ i ].y = yPos;
-			yPos += this.groups[ i ].render( context );
+			this.groups[i].y = yPos;
+			yPos += this.groups[i].render(context);
 		}
 		
 		context.fillStyle = "#000000";
-		context.fillRect( this.width - 1, 0, 1, window.innerHeight );
+		context.fillRect(this.width - 1, 0, 1, window.innerHeight);
 	}
 	
-	this.mouseMove = function( x, y )
+	this.mouseMove = function(x, y)
 	{
-		for( var i = 0; i < this.groups.length; ++ i )
-			this.groups[ i ].mouseMove( x, y );
+		for(var i = 0; i < this.groups.length; ++ i)
+			this.groups[i].mouseMove(x, y);
 	}
 	
-	this.mouseDown = function( x, y )
+	this.mouseDown = function(x, y)
 	{
 		var yPos = 0;
-		for( var i = 0; i < this.groups.length; ++ i )
+		for(var i = 0; i < this.groups.length; ++ i)
 		{
-			var height = this.groups[ i ].getInnerHeight() + 24;
+			var height = this.groups[i].getInnerHeight() + 24;
 			
-			if( y < yPos + height )
+			if(y < yPos + height)
 			{
-				this.groups[ i ].mouseDown( x, y );
+				this.groups[i].mouseDown(x, y);
 				break;
 			}
 			
@@ -59,16 +59,16 @@ function Toolbar()
 		}
 	}
 	
-	this.mouseUp = function( x, y )
+	this.mouseUp = function(x, y)
 	{
 		var yPos = 0;
-		for( var i = 0; i < this.groups.length; ++ i )
+		for(var i = 0; i < this.groups.length; ++ i)
 		{
-			var height = this.groups[ i ].getInnerHeight() + 24;
+			var height = this.groups[i].getInnerHeight() + 24;
 			
-			if( y < yPos + height )
+			if(y < yPos + height)
 			{
-				this.groups[ i ].mouseUp( x, y );
+				this.groups[i].mouseUp(x, y);
 				break;
 			}
 			
@@ -76,16 +76,16 @@ function Toolbar()
 		}
 	}
 	
-	this.click = function( x, y )
+	this.click = function(x, y)
 	{
 		var yPos = 0;
-		for( var i = 0; i < this.groups.length; ++ i )
+		for(var i = 0; i < this.groups.length; ++ i)
 		{
-			var height = this.groups[ i ].getInnerHeight() + 24;
+			var height = this.groups[i].getInnerHeight() + 24;
 			
-			if( y < yPos + height )
+			if(y < yPos + height)
 			{
-				this.groups[ i ].click( x, y );
+				this.groups[i].click(x, y);
 				break;
 			}
 			
@@ -94,7 +94,7 @@ function Toolbar()
 	}
 }
 
-function ToolbarGroup( toolbar, name )
+function ToolbarGroup(toolbar, name)
 {
 	this.toolbar = toolbar;
 
@@ -109,39 +109,39 @@ function ToolbarGroup( toolbar, name )
 	this.isOpen = true;
 	this.curDelta = 1.0;
 	
-	this.openButton = new Button.Small( this.toolbar.width - 28, 0, 24 );
+	this.openButton = new Button.Small(this.toolbar.width - 28, 0, 24);
 	
 	this.getItemsPerRow = function()
 	{		
-		return Math.max( Math.floor( this.toolbar.width / ( this.itemSize + this.padding ) ), 1 );
+		return Math.max(Math.floor(this.toolbar.width / (this.itemSize + this.padding)), 1);
 	}
 	
 	this.getInnerHeight = function()
 	{
-		var rows = Math.ceil( this.items.length / this.getItemsPerRow() );
-		var openSize = rows * ( this.itemSize + this.padding );
+		var rows = Math.ceil(this.items.length / this.getItemsPerRow());
+		var openSize = rows * (this.itemSize + this.padding);
 		
-		this.curDelta += Math.max( ( 1.0 - this.curDelta ) / 4.0, 1.0 / openSize );
+		this.curDelta += Math.max((1.0 - this.curDelta) / 4.0, 1.0 / openSize);
 		
-		if( this.curDelta > 1.0 )
+		if(this.curDelta > 1.0)
 			this.curDelta = 1.0;
 		
 		var delta = this.curDelta;
 		
-		if( !this.isOpen )
+		if(!this.isOpen)
 			delta = 1.0 - delta;
 			
-		return Math.round( openSize * delta );
+		return Math.round(openSize * delta);
 	}
 	
-	this.addItem = function( item )
+	this.addItem = function(item)
 	{
-		this.items.push( item );
+		this.items.push(item);
 	}
 	
 	this.open = function()
 	{
-		if( !this.isOpen )
+		if(!this.isOpen)
 		{
 			this.curDelta = 0.0;
 			this.isOpen = true;
@@ -150,23 +150,23 @@ function ToolbarGroup( toolbar, name )
 	
 	this.close = function()
 	{
-		if( this.isOpen )
+		if(this.isOpen)
 		{
 			this.curDelta = 0.0;
 			this.isOpen = false;
 		}
 	}
 	
-	this.mouseMove = function( x, y )
+	this.mouseMove = function(x, y)
 	{
-		this.openButton.mouseMove( x, y );
+		this.openButton.mouseMove(x, y);
 	}
 	
-	this.mouseDown = function( x, y )
+	this.mouseDown = function(x, y)
 	{
-		if( this.openButton.isPositionOver( x, y ) )
+		if(this.openButton.isPositionOver(x, y))
 		{
-			if( this.isOpen )
+			if(this.isOpen)
 				this.close();
 			else
 				this.open();
@@ -174,74 +174,74 @@ function ToolbarGroup( toolbar, name )
 		else
 		{
 			var ipr = this.getItemsPerRow();
-			for( var i = 0; i < this.items.length; ++i )
+			for(var i = 0; i < this.items.length; ++i)
 			{
-				var imgX = ( i % ipr ) * ( this.itemSize + this.padding )
+				var imgX = (i % ipr) * (this.itemSize + this.padding)
 					+ this.padding / 2;
-				var imgY = Math.floor( i / ipr ) * ( this.itemSize + this.padding ) + this.y + 24
+				var imgY = Math.floor(i / ipr) * (this.itemSize + this.padding) + this.y + 24
 					+ this.padding / 2;
 					
-				if( x >= imgX && y >= imgY && x < imgX + this.itemSize && y < imgY + this.itemSize )
+				if(x >= imgX && y >= imgY && x < imgX + this.itemSize && y < imgY + this.itemSize)
 				{
-					logicSim.startDragging( this.items[ i ] );
+					logicSim.startDragging(this.items[i]);
 					break;
 				}
 			}
 		}
 	}
 	
-	this.mouseUp = function( x, y )
+	this.mouseUp = function(x, y)
 	{
 		
 	}
 	
-	this.click = function( x, y )
+	this.click = function(x, y)
 	{
 	
 	}
 	
-	this.render = function( context )
+	this.render = function(context)
 	{
-		context.translate( 0, this.y );
+		context.translate(0, this.y);
 		
-		context.fillStyle = context.createPattern( this.toolbar.sepimage.mid, "repeat-x" );
-		context.fillRect( 1, 0, this.toolbar.width - 2, 24 );
+		context.fillStyle = context.createPattern(this.toolbar.sepimage.mid, "repeat-x");
+		context.fillRect(1, 0, this.toolbar.width - 2, 24);
 		
-		context.drawImage( this.toolbar.sepimage.end, 0, 0 );
-		context.drawImage( this.toolbar.sepimage.end, this.toolbar.width - 2, 0 );
+		context.drawImage(this.toolbar.sepimage.end, 0, 0);
+		context.drawImage(this.toolbar.sepimage.end, this.toolbar.width - 2, 0);
 		
-		context.translate( 0, -this.y );
+		context.translate(0, -this.y);
 		
 		this.openButton.y = this.y + 4;
 		this.openButton.image = this.isOpen ? this.toolbar.arrimage.up : this.toolbar.arrimage.down;
-		this.openButton.render( context );
+		this.openButton.render(context);
 		
-		context.translate( 0, this.y );
+		context.translate(0, this.y);
 		
 		context.fillStyle = "#FFFFFF";
 		context.font = "bold 12px sans-serif";
 		context.shadowOffsetX = 1;
 		context.shadowOffsetY = -1;
 		context.shadowColor = "#000000";
-		context.fillText( this.name, 4, 16, this.toolbar.width - 8 );
+		context.fillText(this.name, 4, 16, this.toolbar.width - 8);
 		
 		context.shadowOffsetX = 0;
 		context.shadowOffsetY = 0;
 		
-		context.translate( 0, -this.y );
+		context.translate(0, -this.y);
 		
-		if( this.isOpen && this.curDelta > 0.9 )
+		if(this.isOpen && this.curDelta > 0.9)
 		{
 			var ipr = this.getItemsPerRow();
 			
-			for( var i = 0; i < this.items.length; ++i )
+			for(var i = 0; i < this.items.length; ++i)
 			{
-				var imgX = ( i % ipr ) * ( this.itemSize + this.padding )
+				var imgX = (i % ipr) * (this.itemSize + this.padding)
 					+ this.padding / 2;
-				var imgY = Math.floor( i / ipr ) * ( this.itemSize + this.padding ) + this.y + 24
+				var imgY = Math.floor(i / ipr) * (this.itemSize + this.padding) + this.y + 24
 					+ this.padding / 2;
 				
-				this.items[ i ].render( context, imgX, imgY );
+				this.items[i].render(context, imgX, imgY);
 			}
 		}
 		
