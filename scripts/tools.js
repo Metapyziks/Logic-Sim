@@ -80,6 +80,7 @@ images.load("sevsegb.png");
 images.load("sevsegbase.png");
 images.load("sevsegc.png");
 images.load("sevsegd.png");
+images.load("sevsegdecoder.png");
 images.load("sevsegdp.png");
 images.load("sevsege.png");
 images.load("sevsegf.png");
