@@ -47,6 +47,9 @@ function LogicSim()
 		grp.addItem(new PushSwitchB());
 		grp = this.toolbar.addGroup("Flip Flops");
 		grp.addItem(new DFlipFlop());
+		grp = this.toolbar.addGroup("Integrated Circuits");
+		grp.addItem(new Encoder());
+		grp.addItem(new Decoder());
 		grp = this.toolbar.addGroup("Output");
 		grp.addItem(new OutputDisplay());
 		grp.addItem(new SevenSegDisplay());

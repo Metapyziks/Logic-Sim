@@ -547,8 +547,6 @@ function SevenSegDisplay()
 
 function DFlipFlop()
 {
-	this.image = images.dflipflop;
-
 	this.__proto__ = new DefaultGate("DFLIPFLOP", images.dflipflop, false,
 		[
 			new SocketInfo(SocketFace.left,  2, "D"),
@@ -586,6 +584,64 @@ function DFlipFlop()
 	{
 		gate.state = data[0];
 		gate.oldClock = data[1];
+	}
+}
+
+function Encoder()
+{
+	var inputs = [];
+	for (var i = 0; i < 9; ++ i)
+		inputs[i] = new SocketInfo(SocketFace.left, 2 + i * 2, "I" + i);
+
+	var outputs = [];
+	for (var i = 0; i < 4; ++ i)
+		outputs[i] = new SocketInfo(SocketFace.right, 4 + i * 4, "O" + i);
+
+	this.__proto__ = new DefaultGate("ENCODER", images.encoder, false, inputs, outputs);
+	
+	this.func = function(gate, inp)
+	{
+		var val = 0;
+		for (var i = 8; i >= 0; -- i)
+		{
+			if (inp[i])
+			{
+				val = i + 1;
+				break;
+			}
+		}
+
+		var out = [];
+		for (var i = 0; i < 4; ++ i)
+			out[i] = (val & (1 << i)) != 0;
+
+		return out;
+	}
+}
+
+function Decoder()
+{
+	var inputs = [];
+	for (var i = 0; i < 4; ++ i)
+		inputs[i] = new SocketInfo(SocketFace.left, 4 + i * 4, "I" + i);
+
+	var outputs = [];
+	for (var i = 0; i < 9; ++ i)
+		outputs[i] = new SocketInfo(SocketFace.right, 2 + i * 2, "O" + i);
+
+	this.__proto__ = new DefaultGate("DECODER", images.decoder, false, inputs, outputs);
+	
+	this.func = function(gate, inp)
+	{
+		var val = 0;
+		for (var i = 0; i < 4; ++ i)
+			if (inp[i]) val += 1 << i;
+
+		var out = [];
+		for (var i = 0; i < 9; ++ i)
+			out[i] = val == (i + 1);
+
+		return out;
 	}
 }
 
