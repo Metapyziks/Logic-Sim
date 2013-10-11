@@ -49,7 +49,7 @@ function LogicSim()
 		out.addItem( new OutputDisplay() );
 		out.addItem( new SevenSegDisplay() );
 		
-		this.changeGridSize( 8 );
+		this.changeGridSize( 16 );
 		
 		this.onResizeCanvas();
 	}
@@ -550,7 +550,7 @@ function LogicSim()
 
 	this.render = function()
 	{
-		this.context.fillStyle = "#FFFFFF"/*this.context.createPattern( myGridImage, "repeat" )*/;
+		this.context.fillStyle = this.context.createPattern( myGridImage, "repeat" );
 		this.context.fillRect( 256, 0, this.canvas.width - 256, this.canvas.height );
 		
 		for( var i = 0; i < this.wireGroups.length; ++ i )
