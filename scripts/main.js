@@ -30,24 +30,26 @@ function LogicSim()
 		this.context = this.canvas.getContext("2d");
 		
 		this.toolbar = new Toolbar();
-		var def = this.toolbar.addGroup("Logic Gates");
-		def.addItem(new BufferGate());
-		def.addItem(new AndGate());
-		def.addItem(new OrGate());
-		def.addItem(new XorGate());
-		def.addItem(new NotGate());
-		def.addItem(new NandGate());
-		def.addItem(new NorGate());
-		def.addItem(new XnorGate());
-		var inp = this.toolbar.addGroup("Input");
-		inp.addItem(new ConstInput());
-		inp.addItem(new ClockInput());
-		inp.addItem(new ToggleSwitch());
-		inp.addItem(new PushSwitchA());
-		inp.addItem(new PushSwitchB());
-		var out = this.toolbar.addGroup("Output");
-		out.addItem(new OutputDisplay());
-		out.addItem(new SevenSegDisplay());
+		var grp = this.toolbar.addGroup("Logic Gates");
+		grp.addItem(new BufferGate());
+		grp.addItem(new AndGate());
+		grp.addItem(new OrGate());
+		grp.addItem(new XorGate());
+		grp.addItem(new NotGate());
+		grp.addItem(new NandGate());
+		grp.addItem(new NorGate());
+		grp.addItem(new XnorGate());
+		grp = this.toolbar.addGroup("Input");
+		grp.addItem(new ConstInput());
+		grp.addItem(new ClockInput());
+		grp.addItem(new ToggleSwitch());
+		grp.addItem(new PushSwitchA());
+		grp.addItem(new PushSwitchB());
+		grp = this.toolbar.addGroup("Flip Flops");
+		grp.addItem(new DFlipFlop());
+		grp = this.toolbar.addGroup("Output");
+		grp.addItem(new OutputDisplay());
+		grp.addItem(new SevenSegDisplay());
 		
 		this.changeGridSize(16);
 

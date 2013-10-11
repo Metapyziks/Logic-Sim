@@ -60,6 +60,7 @@ images.load("buffer.png");
 images.load("clock.png");
 images.load("constoff.png");
 images.load("conston.png");
+images.load("dflipflop.png");
 images.load("nand.png");
 images.load("nor.png");
 images.load("not.png");
