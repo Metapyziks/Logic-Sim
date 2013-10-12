@@ -138,6 +138,8 @@ function WireGroup(wire)
 		
 		if (!myWires.contains(wire))
 			myWires.push(wire);
+
+		return wire;
 	}
 	
 	this.merge = function(group, ignoreWire)
@@ -171,6 +173,8 @@ function Wire(start, end)
 	
 	this.start = start;
 	this.end = end;
+
+	this.selected = false;
 	
 	if (this.start.x > this.end.x || this.start.y > this.end.y)
 	{
@@ -186,6 +190,15 @@ function Wire(start, end)
 
 	this.render = function(context)
 	{
+		if (this.selected)
+		{
+			context.globalAlpha = 0.5;
+			context.fillStyle = "#6666FF";
+			context.fillRect(this.start.x - 4, this.start.y - 4,
+				this.end.x - this.start.x + 8, this.end.y - this.start.y + 8);
+			context.globalAlpha = 1.0;
+		}
+
 		context.strokeStyle = "#000000";
 		context.lineWidth = 2;
 		

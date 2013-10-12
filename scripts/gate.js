@@ -748,6 +748,8 @@ function Gate(gateType, x, y)
 	this.inputs = this.type.inputs;
 	this.outputs = this.type.outputs;
 	
+	this.selected = false;
+
 	for (var i = 0; i < this.type.inputs.length; ++i)
 		myInLinks[i] = null;
 	
@@ -785,6 +787,12 @@ function Gate(gateType, x, y)
 				return true;
 		
 		return false;
+	}
+	
+	this.unlinkAll = function()
+	{
+		for (var i = 0; i < this.inputs.length; ++ i)
+			myInLinks[i] = null;
 	}
 	
 	this.unlinkGate = function(gate)
@@ -864,6 +872,16 @@ function Gate(gateType, x, y)
 	
 	this.render = function(context)
 	{
+		if (this.selected)
+		{
+			var rect = this.getRect();
+
+			context.globalAlpha = 0.5;
+			context.fillStyle = "#6666FF";
+			context.fillRect(rect.left - 4, rect.top - 4, rect.width + 8, rect.height + 8);
+			context.globalAlpha = 1.0;
+		}
+
 		this.type.render(context, this.x, this.y, this);
 		
 		context.strokeStyle = "#000000";
@@ -888,7 +906,7 @@ function Gate(gateType, x, y)
 				context.fillStyle = myOutputs[i - this.inputs.length]
 					? "#FF9999" : "#9999FF";
 			}
-				
+
 			context.beginPath();
 			context.arc(pos.x, pos.y, 4, 0, Math.PI * 2, true);
 			context.fill();

@@ -13,10 +13,13 @@ function Toolbar()
 	
 	this.groups = new Array();
 	
-	this.addGroup = function(name)
+	this.addGroup = function(name, hide)
 	{
 		var group = new ToolbarGroup(this, name);
 		this.groups.push(group);
+
+		if (hide) group.isOpen = false;
+
 		return group;
 	}
 	
