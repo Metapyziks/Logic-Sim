@@ -233,7 +233,7 @@ function ToolbarGroup(toolbar, name)
 		} else {
 			var ipr = this.getItemsPerRow();
 			var wid = this.getItemWidth();
-			for(var i = 0; i < this.items.length; ++i)
+			for (var i = 0; i < this.items.length; ++i)
 			{
 				var item = this.items[i];
 				var row = Math.floor(i / ipr);
@@ -241,7 +241,7 @@ function ToolbarGroup(toolbar, name)
 				var imgY = this.getRowOffset(row) + this.y + 24
 					+ (this.getRowHeight(row) - item.height) / 2;
 					
-				if(x >= imgX && y >= imgY && x < imgX + item.width && y < imgY + item.height)
+				if (x >= imgX && y >= imgY && x < imgX + item.width && y < imgY + item.height)
 				{
 					logicSim.startDragging(item);
 					break;

@@ -302,6 +302,10 @@ function LogicSim()
 		{
 			var gate = this.gates[i];
 			var rect = gate.getRect(myGridSize);
+
+			if (wire.start.x < rect.right && wire.end.x > rect.left
+				&& wire.start.y <= rect.bottom && wire.end.y >= rect.top)
+				return false;
 			
 			if(wire.start.x == rect.right || rect.left == wire.end.x
 				|| wire.start.y == rect.bottom || rect.top == wire.end.y)

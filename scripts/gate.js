@@ -658,16 +658,16 @@ function SevenSegDecoder()
 	this.__proto__ = new DefaultGate("7447", images.sevsegdecoder, false, inputs, outputs);
 	
 	var myOutputs = [
-		[ true,  true,  true,  false, true,  true,  true ],
+		[ true,  true,  true,  false, true,  true,  true  ],
 		[ true,  true,  false, false, false, false, false ],
-		[ false, true,  true,  true,  false, true,  true ],
-		[ true,  true,  true,  true,  false, false, true ],
+		[ false, true,  true,  true,  false, true,  true  ],
+		[ true,  true,  true,  true,  false, false, true  ],
 		[ true,  true,  false, true,  true,  false, false ],
-		[ true,  false, true,  true,  true,  false, true ],
-		[ true,  false, true,  true,  true,  true,  true ],
+		[ true,  false, true,  true,  true,  false, true  ],
+		[ true,  false, true,  true,  true,  true,  true  ],
 		[ true,  true,  true,  false, false, false, false ],
-		[ true,  true,  true,  true,  true,  true,  true ],
-		[ true,  true,  true,  true,  true,  false, true ],
+		[ true,  true,  true,  true,  true,  true,  true  ],
+		[ true,  true,  true,  true,  true,  false, true  ],
 		[ false, false, false, false, false, false, false ]
 	];
 
