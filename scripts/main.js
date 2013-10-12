@@ -72,15 +72,15 @@ function LogicSim()
 		grp = this.toolbar.addGroup("Flip Flops");
 		grp.addItem(new DFlipFlop());
 
-		grp = this.toolbar.addGroup("Integrated Circuits");
-		grp.addItem(new Encoder());
-		grp.addItem(new Decoder());
-		grp.addItem(new SevenSegDecoder());
-
 		grp = this.toolbar.addGroup("Output");
 		grp.addItem(new OutputDisplay());
 		grp.addItem(new SevenSegDisplay());
 		grp.addItem(new ICOutput());
+
+		grp = this.toolbar.addGroup("Integrated Circuits");
+		grp.addItem(new Encoder());
+		grp.addItem(new Decoder());
+		grp.addItem(new SevenSegDecoder());
 
 		this.customGroup = this.toolbar.addGroup("Custom Circuits");
 		
