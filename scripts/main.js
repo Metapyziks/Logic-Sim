@@ -10,6 +10,7 @@ function LogicSim()
 	var myGridImage = null;
 	
 	var myDeleteDown = false;
+	var myDeleteBtn = null;
 
 	this.canvas = null;
 	this.context = null;
@@ -42,6 +43,12 @@ function LogicSim()
 		}));
 		grp.addItem(new Button.Tool(images.open, function() {
 			Saving.loadFromPrompt();
+		}));
+		myDeleteBtn = grp.addItem(new Button.Tool(images.delete, function() {
+			if (myDeleteDown)
+				logicSim.stopDeleting();
+			else
+				logicSim.startDeleting();
 		}));
 
 		grp = this.toolbar.addGroup("Logic Gates");
@@ -121,6 +128,21 @@ function LogicSim()
 		
 		myIsDragging = false;
 		myDraggedGate = null;
+	}
+
+	this.startDeleting = function()
+	{
+		myDeleteDown = true;
+		myDeleteBtn.selected = true;
+
+		myIsDragging = false;
+		myDraggedGate = null;
+	}
+
+	this.stopDeleting = function()
+	{
+		myDeleteDown = false;
+		myDeleteBtn.selected = false;
 	}
 	
 	this.placeGate = function(gate)
@@ -554,10 +576,7 @@ function LogicSim()
 	{
 		if (e.keyCode == 46)
 		{
-			myDeleteDown = true;
-			
-			myIsDragging = false;
-			myDraggedGate = null;
+			this.startDeleting();
 		}
 
 		if (e.keyCode == 83 && e.ctrlKey)
@@ -576,7 +595,7 @@ function LogicSim()
 	this.keyUp = function(e)
 	{
 		if (e.keyCode == 46)
-			myDeleteDown = false;
+			this.stopDeleting();
 	}
 	
 	this.changeGridSize = function(size)

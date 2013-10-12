@@ -23,6 +23,7 @@ Button.Base = function(x, y, width, height, contents)
 	this.image = (typeof(contents) == "string" ? null : contents);
 	
 	this.mouseOver = false;
+	this.selected = false;
 	
 	this.isPositionOver = function(posX, posY)
 	{
@@ -42,7 +43,11 @@ Button.Base = function(x, y, width, height, contents)
 
 	this.renderBack = function(context)
 	{
-
+		if (this.selected)
+		{
+			context.fillStyle = "#CC6666";
+			context.fillRect(-4, -4, this.width + 8, this.height + 8);
+		}
 	}
 	
 	this.render = function(context)

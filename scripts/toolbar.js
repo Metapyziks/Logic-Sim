@@ -184,6 +184,7 @@ function ToolbarGroup(toolbar, name)
 	this.addItem = function(item)
 	{
 		this.items.push(item);
+		return item;
 	}
 	
 	this.addButton = function(width, contents, mouseDown)
