@@ -26,7 +26,7 @@ function Toolbar()
 		context.fillRect(0, 0, this.width, window.innerHeight);
 		
 		var yPos = 0;
-		for(var i = 0; i < this.groups.length; ++ i)
+		for (var i = 0; i < this.groups.length; ++ i)
 		{
 			this.groups[i].y = yPos;
 			yPos += this.groups[i].render(context);
@@ -38,18 +38,18 @@ function Toolbar()
 	
 	this.mouseMove = function(x, y)
 	{
-		for(var i = 0; i < this.groups.length; ++ i)
+		for (var i = 0; i < this.groups.length; ++ i)
 			this.groups[i].mouseMove(x, y);
 	}
 	
 	this.mouseDown = function(x, y)
 	{
 		var yPos = 0;
-		for(var i = 0; i < this.groups.length; ++ i)
+		for (var i = 0; i < this.groups.length; ++ i)
 		{
 			var height = this.groups[i].getInnerHeight() + 24;
 			
-			if(y < yPos + height)
+			if (y < yPos + height)
 			{
 				this.groups[i].mouseDown(x, y);
 				break;
@@ -62,11 +62,11 @@ function Toolbar()
 	this.mouseUp = function(x, y)
 	{
 		var yPos = 0;
-		for(var i = 0; i < this.groups.length; ++ i)
+		for (var i = 0; i < this.groups.length; ++ i)
 		{
 			var height = this.groups[i].getInnerHeight() + 24;
 			
-			if(y < yPos + height)
+			if (y < yPos + height)
 			{
 				this.groups[i].mouseUp(x, y);
 				break;
@@ -79,11 +79,11 @@ function Toolbar()
 	this.click = function(x, y)
 	{
 		var yPos = 0;
-		for(var i = 0; i < this.groups.length; ++ i)
+		for (var i = 0; i < this.groups.length; ++ i)
 		{
 			var height = this.groups[i].getInnerHeight() + 24;
 			
-			if(y < yPos + height)
+			if (y < yPos + height)
 			{
 				this.groups[i].click(x, y);
 				break;
@@ -117,7 +117,7 @@ function ToolbarGroup(toolbar, name)
 	{
 		if (self.items.length != 0)
 		{
-			if(self.isOpen)
+			if (self.isOpen)
 				self.close();
 			else
 				self.open();
@@ -170,12 +170,12 @@ function ToolbarGroup(toolbar, name)
 		
 		this.curDelta += Math.max((1.0 - this.curDelta) / 4.0, 1.0 / openSize);
 		
-		if(this.curDelta > 1.0)
+		if (this.curDelta > 1.0)
 			this.curDelta = 1.0;
 		
 		var delta = this.curDelta;
 		
-		if(!this.isOpen)
+		if (!this.isOpen)
 			delta = 1.0 - delta;
 			
 		return Math.round(openSize * delta);
@@ -195,7 +195,7 @@ function ToolbarGroup(toolbar, name)
 
 	this.open = function()
 	{
-		if(!this.isOpen)
+		if (!this.isOpen)
 		{
 			this.curDelta = 0.0;
 			this.isOpen = true;
@@ -204,7 +204,7 @@ function ToolbarGroup(toolbar, name)
 	
 	this.close = function()
 	{
-		if(this.isOpen)
+		if (this.isOpen)
 		{
 			this.curDelta = 0.0;
 			this.isOpen = false;
@@ -299,11 +299,11 @@ function ToolbarGroup(toolbar, name)
 		
 		context.translate(0, -this.y);
 		
-		if(this.isOpen && this.curDelta > 0.9)
+		if (this.isOpen && this.curDelta > 0.9)
 		{
 			var ipr = this.getItemsPerRow();
 			var wid = this.getItemWidth();			
-			for(var i = 0; i < this.items.length; ++i)
+			for (var i = 0; i < this.items.length; ++i)
 			{
 				var item = this.items[i];
 				var row = Math.floor(i / ipr);
