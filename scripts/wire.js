@@ -125,11 +125,13 @@ function WireGroup(wire)
 			
 			for (var i = 0; i < myWires.length; ++ i)
 			{			
-				if (myWires[i].runsAlong(wire))
+				var other = myWires[i];
+				if (other != wire && other.runsAlong(wire))
 				{
-
-					myWires[i].merge(wire);
-					wire = myWires[i];
+					other.merge(wire);
+					wire = other;
+					myWires.splice(i, 1);
+					i = -1;
 				}
 			}
 		}
@@ -145,7 +147,7 @@ function WireGroup(wire)
 			if (myWires[i] != ignoreWire)
 			{
 				myWires[i].group = group;
-				group.addWire(myWires[i]);
+				group.addWire(myWires[i].clone());
 			}
 		}
 		
@@ -177,6 +179,11 @@ function Wire(start, end)
 		this.end = temp;
 	}
 	
+	this.clone = function()
+	{
+		return new Wire(this.start, this.end);		
+	}
+
 	this.render = function(context)
 	{
 		context.strokeStyle = "#000000";

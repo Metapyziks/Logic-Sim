@@ -21,6 +21,7 @@ Saving.save = function()
         for (var j = 0; j < wires.length; ++j)
         {
             var wire = wires[j];
+            alert(wire.getConnections().length);
             obj.wires.push({
                 sx: wire.start.x,
                 sy: wire.start.y,
