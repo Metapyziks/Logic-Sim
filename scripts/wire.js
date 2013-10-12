@@ -55,11 +55,17 @@ function WireGroup(wire)
 	{
 		this.input = null;
 		
+		var wires = myWires;
+		myWires = [];
+
 		for (var i = 0; i < this.outputs.length; ++ i)
 		{
 			var link = this.outputs[i];
-			link.gate.unlinkInput(link.socket);
+			logicSim.removeGate(link.gate);
+			logicSim.placeGate(link.gate);
 		}
+
+		myWires = wires;
 	}
 	
 	this.addOutput = function(gate, input)
@@ -77,18 +83,19 @@ function WireGroup(wire)
 	
 	this.removeOutput = function(link)
 	{
-		var index = this.outputs.indexOf(link);
-		this.outputs.splice(index, 1);
-		
-		link.gate.unlinkInput(link.socket);
+		logicSim.removeGate(link.gate);
+		logicSim.placeGate(link.gate);
 	}
 	
 	this.removeAllOutputs = function()
 	{
-		for (var i = 0; i < this.outputs.length; ++ i)
-			this.outputs[i].gate.unlinkInput(this.outputs[i].socket);
-		
-		this.outputs = new Array();
+		var wires = myWires;
+		myWires = [];
+
+		for (var i = this.outputs.length - 1; i >= 0; -- i)
+			this.removeOutput(this.outputs[i]);
+
+		myWires = wires;
 	}
 	
 	this.addWire = function(wire)

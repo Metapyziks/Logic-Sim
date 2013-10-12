@@ -81,13 +81,13 @@ function GateType(name, width, height, inputs, outputs)
 		context.strokeStyle = "#000000";
 		context.lineWidth = 2;
 		
-		for(var i = 0; i < inputs.length + outputs.length; ++ i)
+		for (var i = 0; i < inputs.length + outputs.length; ++ i)
 		{
 			var inp = (i < inputs.length ? inputs[i] : outputs[i - inputs.length]);
 			var start = inp.getPosition(this, x, y);
 			var end = inp.getPosition(this, x, y);
 			
-			if(inp.face == SocketFace.left || inp.face == SocketFace.right)
+			if (inp.face == SocketFace.left || inp.face == SocketFace.right)
 				end.x = x + this.width / 2;
 			else
 				end.y = y + this.height / 2;
@@ -113,7 +113,7 @@ function DefaultGate(name, image, renderOverride, inputs, outputs)
 	this.render = function(context, x, y, gate)
 	{
 		this.__proto__.render(context, x, y, gate);
-		if(!this.renderOverride)
+		if (!this.renderOverride)
 			context.drawImage(this.image, x, y);
 	}
 }
@@ -336,7 +336,7 @@ function ClockInput()
 	{
 		gate.freq *= 2;
 		
-		if(gate.freq >= 32)
+		if (gate.freq >= 32)
 			gate.freq = 0.125;
 	}
 }
@@ -538,9 +538,9 @@ function SevenSegDisplay()
 		this.__proto__.render(context, x, y);
 		context.drawImage(this.baseImage, x, y);
 		
-		if(gate != null)
-			for(var i = 0; i < 8; ++ i)
-				if(gate.active[i])
+		if (gate != null)
+			for (var i = 0; i < 8; ++ i)
+				if (gate.active[i])
 					context.drawImage(this.segImages[i], x, y);
 	}
 }
@@ -746,15 +746,15 @@ function Gate(gateType, x, y)
 	this.inputs = this.type.inputs;
 	this.outputs = this.type.outputs;
 	
-	for(var i = 0; i < this.type.inputs.length; ++i)
+	for (var i = 0; i < this.type.inputs.length; ++i)
 		myInLinks[i] = null;
 	
-	for(var i = 0; i < this.type.outputs.length; ++i)
+	for (var i = 0; i < this.type.outputs.length; ++i)
 		myOutputs[i] = false;
 	
 	this.getRect = function(gridSize)
 	{
-		if(!gridSize)
+		if (!gridSize)
 			gridSize = 1;
 	
 		var rl = Math.round(this.x);
@@ -778,8 +778,8 @@ function Gate(gateType, x, y)
 	
 	this.isLinked = function(gate)
 	{
-		for(var i = 0; i < this.inputs.length; ++ i)
-			if(myInLinks[i] != null && myInLinks[i].gate == gate)
+		for (var i = 0; i < this.inputs.length; ++ i)
+			if (myInLinks[i] != null && myInLinks[i].gate == gate)
 				return true;
 		
 		return false;
@@ -787,8 +787,8 @@ function Gate(gateType, x, y)
 	
 	this.unlinkGate = function(gate)
 	{
-		for(var i = 0; i < this.inputs.length; ++ i)
-			if(myInLinks[i] != null && myInLinks[i].gate == gate)
+		for (var i = 0; i < this.inputs.length; ++ i)
+			if (myInLinks[i] != null && myInLinks[i].gate == gate)
 				myInLinks[i] = null;
 	}
 	
@@ -835,7 +835,7 @@ function Gate(gateType, x, y)
 	{
 		var inVals = new Array();
 	
-		for(var i = 0; i < this.inputs.length; ++ i)
+		for (var i = 0; i < this.inputs.length; ++ i)
 		{
 			var link = myInLinks[i];
 			inVals[i] = (myInLinks[i] == null)
@@ -868,15 +868,15 @@ function Gate(gateType, x, y)
 		context.lineWidth = 2;
 		context.fillStyle = "#9999FF";
 		
-		for(var i = 0; i < this.inputs.length + this.outputs.length; ++ i)
+		for (var i = 0; i < this.inputs.length + this.outputs.length; ++ i)
 		{
 			var inp = (i < this.inputs.length ? this.inputs[i]
 				: this.outputs[i - this.inputs.length]);
 			var pos = inp.getPosition(this.type, this.x, this.y);
 				
-			if(i < this.inputs.length)
+			if (i < this.inputs.length)
 			{
-				if(myInLinks[i] != null)
+				if (myInLinks[i] != null)
 					context.fillStyle = myInLinks[i].getValue() ? "#FF9999" : "#9999FF";
 				else
 					context.fillStyle = "#999999";

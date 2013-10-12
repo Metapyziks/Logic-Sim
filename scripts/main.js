@@ -386,9 +386,8 @@ function LogicSim()
 	
 	this.removeWire = function(wire)
 	{
-		this.removeWireGroup(wire.group);
-		
 		var wires = wire.group.getWires();
+		this.removeWireGroup(wire.group);
 		
 		for (var i = 0; i < wires.length; ++ i)
 		{
@@ -402,9 +401,8 @@ function LogicSim()
 	{
 		var gindex = this.wireGroups.indexOf(group);
 		this.wireGroups.splice(gindex, 1);
-		
+
 		group.removeAllOutputs();
-		group.removeInput();
 	}
 	
 	this.mouseMove = function(x, y)
