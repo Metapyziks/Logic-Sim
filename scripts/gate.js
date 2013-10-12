@@ -33,6 +33,8 @@ function SocketInfo(face, offset, label)
 
 function GateType(name, width, height, inputs, outputs)
 {
+	this.isGateType = true;
+
 	this.name = name;
 
 	this.width = width;

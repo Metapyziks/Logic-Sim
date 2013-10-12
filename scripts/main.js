@@ -32,7 +32,19 @@ function LogicSim()
 		this.context = this.canvas.getContext("2d");
 		
 		this.toolbar = new Toolbar();
-		var grp = this.toolbar.addGroup("Logic Gates");
+		var grp = this.toolbar.addGroup("Tools");
+		grp.addItem(new Button.Tool(images.newfile, function() {
+			logicSim.gates = new Array();
+			logicSim.wireGroups = new Array();
+		}));
+		grp.addItem(new Button.Tool(images.save, function() {
+			Saving.save();
+		}));
+		grp.addItem(new Button.Tool(images.open, function() {
+			Saving.loadFromPrompt();
+		}));
+
+		grp = this.toolbar.addGroup("Logic Gates");
 		grp.addItem(new BufferGate());
 		grp.addItem(new AndGate());
 		grp.addItem(new OrGate());
@@ -41,6 +53,7 @@ function LogicSim()
 		grp.addItem(new NandGate());
 		grp.addItem(new NorGate());
 		grp.addItem(new XnorGate());
+
 		grp = this.toolbar.addGroup("Input");
 		grp.addItem(new ConstInput());
 		grp.addItem(new ClockInput());
@@ -48,27 +61,26 @@ function LogicSim()
 		grp.addItem(new PushSwitchA());
 		grp.addItem(new PushSwitchB());
 		grp.addItem(new ICInput());
+
 		grp = this.toolbar.addGroup("Flip Flops");
 		grp.addItem(new DFlipFlop());
+
 		grp = this.toolbar.addGroup("Integrated Circuits");
 		grp.addItem(new Encoder());
 		grp.addItem(new Decoder());
 		grp.addItem(new SevenSegDecoder());
+
 		grp = this.toolbar.addGroup("Output");
 		grp.addItem(new OutputDisplay());
 		grp.addItem(new SevenSegDisplay());
 		grp.addItem(new ICOutput());
 
 		this.customGroup = this.toolbar.addGroup("Custom Circuits");
-		this.customGroup.addButton(32, "Save", function (x, y) {
-
-		});
 		
 		this.changeGridSize(16);
-
-		Saving.load();
-		
 		this.onResizeCanvas();
+
+		Saving.loadFromHash();
 	}
 	
 	this.clear = function()
@@ -551,6 +563,12 @@ function LogicSim()
 		if (e.keyCode == 83 && e.ctrlKey)
 		{
 			Saving.save();
+			e.preventDefault();
+		}
+
+		if (e.keyCode == 79 && e.ctrlKey)
+		{
+			Saving.loadFromPrompt();
 			e.preventDefault();
 		}
 	}

@@ -21,7 +21,6 @@ Saving.save = function()
         for (var j = 0; j < wires.length; ++j)
         {
             var wire = wires[j];
-            alert(wire.getConnections().length);
             obj.wires.push({
                 sx: wire.start.x,
                 sy: wire.start.y,
@@ -32,14 +31,24 @@ Saving.save = function()
     }
 
     var str = LZString.compressToBase64(JSON.stringify(obj));
-    window.location.href = "#" + str;
+
+    window.prompt("Copy this save code with Ctrl+C to load later.", str);
 }
 
-Saving.load = function()
+Saving.loadFromHash = function()
 {
     if (window.location.hash === null || window.location.hash.length <= 1) return;
+    Saving.load(window.location.hash.substring(1));
+}
 
-    var str = window.location.hash.substring(1);
+Saving.loadFromPrompt = function()
+{
+    var str = prompt("Paste a previously copied save code with Ctrl+V.", "");
+    if (str != null && str.length > 0) Saving.load(str);
+}
+
+Saving.load = function(str)
+{
     var obj = JSON.parse(LZString.decompressFromBase64(str));
 
     for (var i = 0; i < obj.gates.length; ++i)

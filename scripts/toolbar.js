@@ -243,7 +243,11 @@ function ToolbarGroup(toolbar, name)
 					
 				if (x >= imgX && y >= imgY && x < imgX + item.width && y < imgY + item.height)
 				{
-					logicSim.startDragging(item);
+					if (item.isGateType)
+						logicSim.startDragging(item);
+					else
+						item.mouseDown(x, y);
+
 					break;
 				}
 			}
@@ -311,7 +315,14 @@ function ToolbarGroup(toolbar, name)
 				var imgY = this.getRowOffset(row) + this.y + 24
 					+ (this.getRowHeight(row) - item.height) / 2;
 				
-				this.items[i].render(context, Math.round(imgX), imgY);
+				if (item.isGateType)
+					item.render(context, Math.round(imgX), imgY);
+				else
+				{
+					item.x = Math.round(imgX);
+					item.y = imgY;
+					item.render(context);
+				}
 			}
 		}
 		
