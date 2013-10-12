@@ -39,10 +39,17 @@ Button.Base = function(x, y, width, height, contents)
 	{
 
 	}
+
+	this.renderBack = function(context)
+	{
+
+	}
 	
 	this.render = function(context)
 	{
 		context.translate(this.x, this.y);
+
+		this.renderBack(context);
 
 		if (this.image)
 		{
@@ -75,19 +82,13 @@ Button.Small = function(x, y, width, contents)
 
 	this.__proto__ = new Button.Base(x, y, width, 16, contents);
 
-	this.render = function(context)
+	this.renderBack = function(context)
 	{
-		context.translate(this.x, this.y);
-		
 		var imgs = this.mouseOver ? this.overImages : this.upImages;
 
 		context.drawImage(imgs[0], 0, 0);
 		context.fillStyle = context.createPattern(imgs[1], "repeat-x");
 		context.fillRect(1, 0, this.width - 2, this.height);
 		context.drawImage(imgs[2], this.width - 1, 0);
-			
-		context.translate(-this.x, -this.y);
-
-		this.__proto__.render(context);
 	}
 }
