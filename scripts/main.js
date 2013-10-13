@@ -243,6 +243,33 @@ function LogicSim()
 
 	this.setMode = function(mode)
 	{
+		if (mode == ControlMode.deleting)
+		{
+			var deleted = false;
+			for (var i = this.gates.length - 1; i >= 0; i--)
+			{
+				var gate = this.gates[i];
+				if (gate.selected)
+				{
+					deleted = true;
+					this.removeGate(gate);
+				}
+			}
+
+			var wires = this.getAllWires();
+			for (var i = wires.length - 1; i >= 0; i--)
+			{
+				var wire = wires[i];
+				if (wire.selected)
+				{
+					deleted = true;
+					this.removeWire(wire);
+				}
+			}
+
+			if (deleted) mode = ControlMode.wiring;
+		}
+
 		this.mode = mode;
 
 		myDeleteBtn.selected = mode == ControlMode.deleting;
@@ -592,6 +619,7 @@ function LogicSim()
 				
 				if (rect.contains(pos))
 				{
+					gate.mouseDown();
 					if (this.mode == ControlMode.selecting)
 						gate.selected = !gate.selected;
 					else if (this.mode == ControlMode.wiring)
@@ -603,7 +631,6 @@ function LogicSim()
 						} else {
 							myCanDrag = true;
 						}
-						gate.mouseDown();
 						return;
 					}
 				}
