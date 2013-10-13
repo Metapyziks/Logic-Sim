@@ -7,6 +7,7 @@ var ControlMode = {
 function LogicSim()
 {
 	var myIsDragging = false;
+	var myCanDrag = false;
 	
 	var myIsWiring = false;
 	var myWireStart = null;
@@ -132,7 +133,7 @@ function LogicSim()
 			mySelection.gates = [gate];
 			mySelection.wires = [];
 		} else {
-			var pos = this.getDraggedPosition();
+			var pos = this.mouseDownPos;
 
 			mySelection.gates = [];
 			mySelection.wires = [];
@@ -145,7 +146,9 @@ function LogicSim()
 				if (myCtrlDown)
 				{
 					gate.selected = false;
+					var data = gate.saveData();
 					gate = new Gate(gate.type, gate.x, gate.y);
+					gate.loadData(data);
 					gate.selected = true;
 				}
 				else
@@ -407,7 +410,7 @@ function LogicSim()
 
 		if (this.canPlaceWire())
 			this.placeWire(myWireStart, this.getWireEnd());
-		
+
 		myIsWiring = false;
 	}
 	
@@ -558,6 +561,13 @@ function LogicSim()
 		this.mouseY = y;
 		
 		this.toolbar.mouseMove(x, y);
+
+		if (!myIsDragging && myCanDrag && this.mouseDownPos != null)
+		{
+			var diff = new Pos(x, y).sub(this.mouseDownPos);
+			if (Math.abs(diff.x) >= 8 || Math.abs(diff.y) >= 8)
+				this.startDragging();
+		}
 	}
 	
 	this.mouseDown = function(x, y)
@@ -565,8 +575,10 @@ function LogicSim()
 		this.mouseX = x;
 		this.mouseY = y;
 		
-		this.mouseDownPos = new Pos(x, y);
+		this.mouseDownPos = this.getDraggedPosition();
 		
+		myCanDrag = false;
+
 		if (x < 256)
 			this.toolbar.mouseDown(x, y);
 		else
@@ -589,7 +601,7 @@ function LogicSim()
 							this.deselectAll();
 							gate.selected = true;
 						} else {
-							this.startDragging();
+							myCanDrag = true;
 						}
 						gate.mouseDown();
 						return;
@@ -618,7 +630,7 @@ function LogicSim()
 							this.deselectAll();
 							wire.selected = true;
 						} else {
-							this.startDragging();
+							myCanDrag = true;
 							return;
 						}
 					}
@@ -673,8 +685,6 @@ function LogicSim()
 			if (this.mode == ControlMode.deleting && !deleted)
 			{
 				var gsize = 8;
-				this.mouseDownPos.x = Math.round(this.mouseDownPos.x / gsize) * gsize;
-				this.mouseDownPos.y = Math.round(this.mouseDownPos.y / gsize) * gsize;
 				pos.x = Math.round(pos.x / gsize) * gsize;
 				pos.y = Math.round(pos.y / gsize) * gsize;
 				
