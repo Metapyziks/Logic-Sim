@@ -129,6 +129,7 @@ function WireGroup(wire)
 				if (other != wire && other.runsAlong(wire))
 				{
 					other.merge(wire);
+					other.selected = other.selected || wire.selected;
 					wire = other;
 					myWires.splice(i, 1);
 					i = -1;
@@ -171,8 +172,8 @@ function Wire(start, end)
 	
 	this.group = new WireGroup(this);
 	
-	this.start = start;
-	this.end = end;
+	this.start = new Pos(start.x, start.y);
+	this.end = new Pos(end.x, end.y);
 
 	this.selected = false;
 	
