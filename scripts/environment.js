@@ -9,6 +9,40 @@ function Environment()
         this.wireGroups = new Array();
     }
 
+    this.clone = function()
+    {
+        var env = new Environment();
+
+        for (var i = 0; i < this.gates.length; ++i) {
+            env.placeGate(this.gates[i].clone());
+        }
+
+        var wires = this.getAllWires();
+        for (var i = 0; i < wires.length; ++i) {
+            env.placeWire(wires[i].start, wires[i].end);
+        }
+
+        return env;
+    }
+
+    this.tryMerge = function(env)
+    {
+        for (var i = 0; i < env.gates.length; ++i) {
+            var gate = this.gates[i];
+            if (!this.canPlaceGate(gate)) return false;
+            this.placeGate(gate.clone());
+        }
+
+        var wires = env.getAllWires();
+        for (var i = 0; i < wires.length; ++i) {
+            var wire = wires[i];
+            if (!this.canPlaceWire(wire.start, wire.end)) return false;
+            this.placeWire(wire.start, wire.end);
+        }
+
+        return true;
+    }
+
     this.getAllWires = function()
     {
         var wires = [];

@@ -477,8 +477,9 @@ function LogicSim()
 		if (e.shiftKey) this.setMode(ControlMode.selecting);
 		else if (this.mode == ControlMode.selecting) this.setMode(ControlMode.wiring);
 		
-		if (x < 256)
+		if (x < 256) {
 			this.toolbar.click(x, y);
+		}
 	}
 	
 	this.keyDown = function(e)

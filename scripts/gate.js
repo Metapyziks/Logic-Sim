@@ -755,6 +755,11 @@ function Gate(gateType, x, y)
 	
 	for (var i = 0; i < this.type.outputs.length; ++i)
 		myOutputs[i] = false;
+
+	this.clone = function()
+	{
+		return new Gate(this.type, this.x, this.y);
+	}
 	
 	this.getRect = function(gridSize)
 	{
