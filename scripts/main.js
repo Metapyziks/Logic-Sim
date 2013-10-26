@@ -24,7 +24,7 @@ function LogicSim()
 
 	var myCtrlDown = false;
 
-	var mySelection = { wires: [], gates: [] };
+	var mySelection = new Environment();
 
 	this.canvas = null;
 	this.context = null;
@@ -111,18 +111,16 @@ function LogicSim()
 		
 	this.startDragging = function(gateType)
 	{
+		mySelection.clear();
+
 		if (gateType != null) {
 			this.deselectAll();
 
 			var gate = new Gate(gateType, 0, 0);
 
-			mySelection.gates = [gate];
-			mySelection.wires = [];
+			mySelection.placeGate(gate);
 		} else {
 			var pos = this.mouseDownPos;
-
-			mySelection.gates = [];
-			mySelection.wires = [];
 
 			for (var i = this.gates.length - 1; i >= 0; i--)
 			{
@@ -140,10 +138,10 @@ function LogicSim()
 				else
 					this.removeGate(gate);
 
-				mySelection.gates.push(gate);
-
 				gate.x -= pos.x;
 				gate.y -= pos.y;
+
+				mySelection.placeGate(gate);
 			}
 
 			var wires = this.getAllWires();
@@ -153,21 +151,13 @@ function LogicSim()
 				var wire = wires[i];
 				if (!wire.selected) continue;
 
-				var copy = wire.clone();
-
 				if (myCtrlDown) {
 					wire.selected = false;
 				} else {
 					toRemove.push(wire);
 				}
 
-				copy.selected = true;
-				mySelection.wires.push(copy);
-
-				copy.start.x -= pos.x;
-				copy.start.y -= pos.y;
-				copy.end.x -= pos.x;
-				copy.end.y -= pos.y;
+				mySelection.placeWire(wire.start.sub(pos), wire.end.sub(pos), true);
 			}
 
 			if (!myCtrlDown) {
@@ -217,9 +207,10 @@ function LogicSim()
 				this.placeGate(gate);
 		}
 
-		for (var i = 0; i < mySelection.wires.length; ++i)
+		var wires = mySelection.getAllWires();
+		for (var i = 0; i < wires.length; ++i)
 		{
-			var wire = mySelection.wires[i];
+			var wire = wires[i];
 			wire.start.x += pos.x;
 			wire.start.y += pos.y;
 			wire.end.x += pos.x;
@@ -229,8 +220,7 @@ function LogicSim()
 				this.placeWire(wire.start, wire.end, true);
 		}
 
-		mySelection.gates = [];
-		mySelection.wires = [];
+		mySelection.clear();
 	}
 
 	this.setMode = function(mode)
@@ -310,10 +300,15 @@ function LogicSim()
 		return pos;
 	}
 	
-	this.mouseMove = function(x, y)
+	this.mouseMove = function(x, y, e)
 	{
 		this.mouseX = x;
 		this.mouseY = y;
+
+		myCtrlDown = e.ctrlKey;
+
+		if (e.shiftKey) this.setMode(ControlMode.selecting);
+		else if (this.mode == ControlMode.selecting) this.setMode(ControlMode.wiring);
 		
 		this.toolbar.mouseMove(x, y);
 
@@ -325,10 +320,15 @@ function LogicSim()
 		}
 	}
 	
-	this.mouseDown = function(x, y)
+	this.mouseDown = function(x, y, e)
 	{
 		this.mouseX = x;
 		this.mouseY = y;
+
+		myCtrlDown = e.ctrlKey;
+
+		if (e.shiftKey) this.setMode(ControlMode.selecting);
+		else if (this.mode == ControlMode.selecting) this.setMode(ControlMode.wiring);
 		
 		this.mouseDownPos = this.getDraggedPosition();
 		
@@ -397,10 +397,15 @@ function LogicSim()
 		}
 	}
 	
-	this.mouseUp = function(x, y)
+	this.mouseUp = function(x, y, e)
 	{
 		this.mouseX = x;
 		this.mouseY = y;
+
+		myCtrlDown = e.ctrlKey;
+
+		if (e.shiftKey) this.setMode(ControlMode.selecting);
+		else if (this.mode == ControlMode.selecting) this.setMode(ControlMode.wiring);
 		
 		if (myIsDragging)
 			this.stopDragging();
@@ -462,10 +467,15 @@ function LogicSim()
 		this.mouseDownPos = null;
 	}
 	
-	this.click = function(x, y)
+	this.click = function(x, y, e)
 	{
 		this.mouseX = x;
 		this.mouseY = y;
+
+		myCtrlDown = e.ctrlKey;
+
+		if (e.shiftKey) this.setMode(ControlMode.selecting);
+		else if (this.mode == ControlMode.selecting) this.setMode(ControlMode.wiring);
 		
 		if (x < 256)
 			this.toolbar.click(x, y);
@@ -538,18 +548,7 @@ function LogicSim()
 		if (myIsDragging)
 		{
 			var pos = this.getDraggedPosition();
-
-			for (var i = mySelection.gates.length - 1; i >= 0; i--)
-			{
-				var gate = mySelection.gates[i];
-				gate.render(this.context, pos);
-			}
-
-			for (var i = mySelection.wires.length - 1; i >= 0; i--)
-			{
-				var wire = mySelection.wires[i];
-				wire.render(this.context, pos);
-			}
+			mySelection.render(this.context, pos);
 		}
 		else if (myIsWiring)
 		{		
@@ -605,33 +604,33 @@ window.onload = function(e)
 window.onmousemove = function(e)
 {
 	if (e)
-		logicSim.mouseMove(e.pageX, e.pageY);
+		logicSim.mouseMove(e.pageX, e.pageY, e);
 	else
-		logicSim.mouseMove(window.event.clientX, window.event.clientY);
+		logicSim.mouseMove(window.event.clientX, window.event.clientY, window.event);
 }
 
 window.onmousedown = function(e)
 {
 	if (e)
-		logicSim.mouseDown(e.pageX, e.pageY);
+		logicSim.mouseDown(e.pageX, e.pageY, e);
 	else
-		logicSim.mouseDown(window.event.clientX, window.event.clientY);
+		logicSim.mouseDown(window.event.clientX, window.event.clientY, window.event);
 }
 
 window.onmouseup = function(e)
 {
 	if (e)
-		logicSim.mouseUp(e.pageX, e.pageY);
+		logicSim.mouseUp(e.pageX, e.pageY, e);
 	else
-		logicSim.mouseUp(window.event.clientX, window.event.clientY);
+		logicSim.mouseUp(window.event.clientX, window.event.clientY, window.event);
 }
 
 window.onclick = function(e)
 {
 	if (e)
-		logicSim.click(e.pageX, e.pageY);
+		logicSim.click(e.pageX, e.pageY, e);
 	else
-		logicSim.click(window.event.clientX, window.event.clientY);
+		logicSim.click(window.event.clientX, window.event.clientY, window.event);
 }
 
 window.onkeydown = function(e)
