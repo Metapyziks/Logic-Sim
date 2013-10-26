@@ -6,7 +6,10 @@ var ControlMode = {
 
 function LogicSim()
 {
+	this.__proto__ = new Environment();
+
 	var myIsDragging = false;
+	var myIsSelecting = false;
 	var myCanDrag = false;
 	
 	var myIsWiring = false;
@@ -32,9 +35,6 @@ function LogicSim()
 	this.mouseY = 0;
 	
 	this.mosueDownPos = null;
-	
-	this.gates = new Array();
-	this.wireGroups = new Array();
 
 	this.customGroup = null;
 
@@ -103,26 +103,12 @@ function LogicSim()
 
 		this.customGroup = this.toolbar.addGroup("Custom Circuits");
 		
-		this.changeGridSize(16);
+		this.setGridSize(16);
 		this.onResizeCanvas();
 
 		Saving.loadFromHash();
 	}
-	
-	this.clear = function()
-	{
-		this.gates = new Array();
-		this.wireGroups = new Array();
-	}
-
-	this.getAllWires = function()
-	{
-		var wires = [];
-		for (var i = this.wireGroups.length - 1; i >= 0; i--)
-			wires = wires.concat(this.wireGroups[i].getWires());
-		return wires;
-	}
-	
+		
 	this.startDragging = function(gateType)
 	{
 		if (gateType != null) {
@@ -284,150 +270,6 @@ function LogicSim()
 		mySelectBtn.selected = mode == ControlMode.selecting;
 	}
 
-	this.deselectAll = function()
-	{
-		for (var i = this.gates.length - 1; i >= 0; --i)
-			this.gates[i].selected = false;
-
-		var wires = this.getAllWires();
-		for (var i = wires.length - 1; i >= 0; --i)
-			wires[i].selected = false;
-	}
-
-	this.placeGate = function(gate)
-	{
-		gate.unlinkAll();
-
-		var r0 = gate.getRect(myGridSize);
-	
-		for (var i = 0; i < this.gates.length; ++ i)
-		{
-			var other = this.gates[i];
-			var r1 = other.getRect(myGridSize);
-			
-			if (r0.left == r1.right || r1.left == r0.right
-				|| r0.top == r1.bottom || r1.top == r0.bottom)
-			{				
-				for (var j = 0; j < gate.inputs.length; ++ j)
-				{
-					var inp = gate.inputs[j];
-					for (var k = 0; k < other.outputs.length; ++ k)
-					{
-						var out = other.outputs[k];
-						
-						if (inp.getPosition(gate.type, gate.x, gate.y).equals(
-							out.getPosition(other.type, other.x, other.y)))
-							gate.linkInput(other, out, inp);
-					}
-				}
-				
-				for (var j = 0; j < gate.outputs.length; ++ j)
-				{
-					var out = gate.outputs[j];
-					for (var k = 0; k < other.inputs.length; ++ k)
-					{
-						var inp = other.inputs[k];
-						
-						if (out.getPosition(gate.type, gate.x, gate.y).equals(
-							inp.getPosition(other.type, other.x, other.y)))
-							other.linkInput(gate, out, inp);
-					}
-				}
-			}
-		}
-		
-		for (var i = 0; i < this.wireGroups.length; ++ i)
-		{
-			var group = this.wireGroups[i];
-					
-			for (var j = 0; j < gate.inputs.length; ++ j)
-			{
-				var pos = gate.inputs[j].getPosition(gate.type, gate.x, gate.y);
-				
-				if (group.crossesPos(pos))
-					group.addOutput(gate, gate.inputs[j]);
-			}
-			
-			for (var j = 0; j < gate.outputs.length; ++ j)
-			{
-				var pos = gate.outputs[j].getPosition(gate.type, gate.x, gate.y);
-				
-				if (group.crossesPos(pos))
-					group.setInput(gate, gate.outputs[j]);
-			}
-		}
-		
-		this.gates.push(gate);
-	}
-	
-	this.removeGate = function(gate)
-	{
-		var index = this.gates.indexOf(gate);
-		this.gates.splice(index, 1);
-		
-		for (var i = 0; i < this.gates.length; ++ i)
-		{
-			if (this.gates[i].isLinked(gate))
-				this.gates[i].unlinkGate(gate);
-			if (gate.isLinked(this.gates[i]))
-				gate.unlinkGate(this.gates[i]);
-		}
-		
-		for (var i = 0; i < this.wireGroups.length; ++ i)
-		{
-			var group = this.wireGroups[i];
-			if (group.input != null && group.input.gate == gate)
-				group.input = null;
-				
-			for (var j = group.outputs.length - 1; j >= 0; -- j)
-				if (group.outputs[j].gate == gate)
-					group.outputs.splice(j, 1);
-		}
-	}
-	
-	this.canPlaceGate = function(gate)
-	{
-		var rect = gate.getRect();
-		
-		for (var i = 0; i < this.gates.length; ++i)
-		{
-			var other = this.gates[i].getRect();
-			
-			if (rect.intersects(other))
-				return false;
-		}
-		
-		var crossed = false;
-		
-		for (var i = 0; i < this.wireGroups.length; ++ i)
-		{
-			var group = this.wireGroups[i];
-			var wires = group.getWires();
-
-			for (var j = 0; j < wires.length; ++ j)
-			{
-				var wire = wires[j];
-				if (wire.start.x < rect.right && wire.end.x > rect.left
-					&& wire.start.y <= rect.bottom && wire.end.y >= rect.top)
-					return false;
-			}
-
-			for (var j = 0; j < gate.outputs.length; ++ j)
-			{
-				var out = gate.outputs[j];
-				if (group.crossesPos(out.getPosition(gate.type, gate.x, gate.y)))
-				{
-					if (crossed || group.input != null)
-						return false;
-					
-					crossed = true;
-				}
-			}
-		}
-		
-		return true;
-	}
-	
 	this.startWiring = function(x, y)
 	{
 		var snap = myGridSize / 2;
@@ -441,7 +283,7 @@ function LogicSim()
 	
 	this.stopWiring = function(x, y)
 	{
-		if (this.canPlaceWire()) {
+		if (this.canPlaceWire(new Wire(myWireStart, this.getWireEnd()))) {
 			this.deselectAll();
 			this.placeWire(myWireStart, this.getWireEnd());
 		}
@@ -466,160 +308,6 @@ function LogicSim()
 			pos.x = myWireStart.x;
 			
 		return pos;
-	}
-	
-	this.canPlaceWire = function(wire)
-	{
-		if (wire == null) 
-		{
-			var end = this.getWireEnd();				
-			wire = new Wire(myWireStart, end);
-		}
-		var input = null;
-		
-		for (var i = 0; i < this.wireGroups.length; ++ i)
-		{
-			var group = this.wireGroups[i];
-			
-			if (group.canAddWire(wire))
-			{
-				if (wire.start.equals(wire.end))
-					return false;
-
-				if (group.input != null) {
-					if (input != null && !group.input.equals(input))
-						return false;
-					
-					input = group.input;
-				}
-			}
-		}
-		
-		for (var i = 0; i < this.gates.length; ++ i)
-		{
-			var gate = this.gates[i];
-			var rect = gate.getRect(myGridSize);
-
-			if (wire.start.x < rect.right && wire.end.x > rect.left
-				&& wire.start.y <= rect.bottom && wire.end.y >= rect.top)
-				return false;
-			
-			if (wire.start.x == rect.right || rect.left == wire.end.x
-				|| wire.start.y == rect.bottom || rect.top == wire.end.y)
-			{
-				for (var j = 0; j < gate.outputs.length; ++ j)
-				{
-					var inp = new Link(gate, gate.outputs[j]);
-					var pos = gate.outputs[j].getPosition(gate.type, gate.x, gate.y);
-					
-					if (wire.crossesPos(pos))
-					{
-						if (input != null && !inp.equals(input))
-							return false;
-						
-						input = inp;
-					}
-				}
-			}
-		}
-		
-		return true;
-	}
-	
-	this.placeWire = function(start, end, selected)
-	{
-		if (start.equals(end)) {
-			return null;
-		}
-
-		selected = selected != null ? true : false;
-		var wire = new Wire(start, end);
-		wire.selected = selected;
-		
-		for (var i = 0; i < this.gates.length; ++ i)
-		{
-			var gate = this.gates[i];
-			var rect = gate.getRect(myGridSize);
-			
-			if (wire.start.x == rect.right || rect.left == wire.end.x
-				|| wire.start.y == rect.bottom || rect.top == wire.end.y)
-			{				
-				for (var j = 0; j < gate.inputs.length; ++ j)
-				{
-					var pos = gate.inputs[j].getPosition(gate.type, gate.x, gate.y);
-					
-					if (wire.crossesPos(pos))
-						wire.group.addOutput(gate, gate.inputs[j]);
-				}
-				
-				for (var j = 0; j < gate.outputs.length; ++ j)
-				{
-					var pos = gate.outputs[j].getPosition(gate.type, gate.x, gate.y);
-					
-					if (wire.crossesPos(pos))
-						wire.group.setInput(gate, gate.outputs[j]);
-				}
-			}
-		}
-	
-		for (var i = 0; i < this.wireGroups.length; ++ i)
-		{
-			var group = this.wireGroups[i];
-			if (group.canAddWire(wire))
-				wire = group.addWire(wire);
-		}
-		
-		for (var i = this.wireGroups.length - 1; i >= 0; --i)
-			if (this.wireGroups[i].isEmpty)
-				this.wireGroups.splice(i, 1);
-		
-		if (!this.wireGroups.contains(wire.group))
-			this.wireGroups.push(wire.group);
-
-		return wire;
-	}
-
-	this.removeWires = function(toRemove)
-	{
-		var groups = new Array();
-
-		for (var i = 0; i < toRemove.length; ++ i) {
-			var group = toRemove[i].group;
-			if (!groups.contains(group)) {
-				groups.push(group);
-
-				var wires = group.getWires();
-
-				var gindex = this.wireGroups.indexOf(group);
-				this.wireGroups.splice(gindex, 1);
-				group.removeAllOutputs();
-				
-				for (var i = 0; i < wires.length; ++ i)
-				{
-					var w = wires[i];
-					if (!toRemove.contains(w)) {
-						this.placeWire(w.start, w.end);
-					}
-				}
-			}
-		}
-	}
-	
-	this.removeWire = function(wire)
-	{
-		var wires = wire.group.getWires();
-
-		var gindex = this.wireGroups.indexOf(wire.group);
-		this.wireGroups.splice(gindex, 1);
-		wire.group.removeAllOutputs();
-		
-		for (var i = 0; i < wires.length; ++ i)
-		{
-			var w = wires[i];
-			if (w != wire) {
-				this.placeWire(w.start, w.end);
-			}
-		}
 	}
 	
 	this.mouseMove = function(x, y)
@@ -810,8 +498,13 @@ function LogicSim()
 
 		if (e.keyCode == 17) myCtrlDown = false;
 	}
-	
-	this.changeGridSize = function(size)
+
+	this.getGridSize = function()
+	{
+		return myGridSize;
+	}
+
+	this.setGridSize = function(size)
 	{
 		myGridSize = size;
 		myGridImage = document.createElement("canvas");
@@ -838,11 +531,7 @@ function LogicSim()
 		this.context.fillStyle = this.context.createPattern(myGridImage, "repeat");
 		this.context.fillRect(256, 0, this.canvas.width - 256, this.canvas.height);
 		
-		for (var i = 0; i < this.wireGroups.length; ++ i)
-			this.wireGroups[i].render(this.context);
-			
-		for (var i = 0; i < this.gates.length; ++ i)
-			this.gates[i].render(this.context);
+		this.__proto__.render(this.context);
 		
 		this.toolbar.render(this.context);
 		
@@ -878,7 +567,8 @@ function LogicSim()
 		{		
 			var end = this.getWireEnd();
 		
-			this.context.strokeStyle = this.canPlaceWire() ? "#009900" : "#990000";
+			this.context.strokeStyle = this.canPlaceWire(new Wire(myWireStart, this.getWireEnd()))
+				? "#009900" : "#990000";
 			this.context.lineWidth = 2;
 			this.context.beginPath();
 			this.context.moveTo(myWireStart.x, myWireStart.y);
