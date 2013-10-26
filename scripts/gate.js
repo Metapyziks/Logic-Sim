@@ -758,7 +758,9 @@ function Gate(gateType, x, y)
 
 	this.clone = function()
 	{
-		return new Gate(this.type, this.x, this.y);
+		var copy = new Gate(this.type, this.x, this.y);
+		copy.loadData(this.saveData());
+		return copy;
 	}
 	
 	this.getRect = function(gridSize)
