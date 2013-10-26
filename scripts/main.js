@@ -161,6 +161,7 @@ function LogicSim()
 			}
 
 			var wires = this.getAllWires();
+			var toRemove = new Array();
 			for (var i = wires.length - 1; i >= 0; i--)
 			{
 				var wire = wires[i];
@@ -168,10 +169,11 @@ function LogicSim()
 
 				var copy = wire.clone();
 
-				if (myCtrlDown)
+				if (myCtrlDown) {
 					wire.selected = false;
-				else
-					this.removeWire(wire);
+				} else {
+					toRemove.push(wire);
+				}
 
 				copy.selected = true;
 				mySelection.wires.push(copy);
@@ -180,6 +182,10 @@ function LogicSim()
 				copy.start.y -= pos.y;
 				copy.end.x -= pos.x;
 				copy.end.y -= pos.y;
+			}
+
+			if (!myCtrlDown) {
+				this.removeWires(toRemove);
 			}
 		}
 
@@ -257,15 +263,17 @@ function LogicSim()
 			}
 
 			var wires = this.getAllWires();
+			var toRemove = new Array();
 			for (var i = wires.length - 1; i >= 0; i--)
 			{
 				var wire = wires[i];
 				if (wire.selected)
 				{
 					deleted = true;
-					this.removeWire(wire);
+					toRemove.push(wire);
 				}
 			}
+			this.removeWires(toRemove);
 
 			if (deleted) mode = ControlMode.wiring;
 		}
@@ -433,10 +441,10 @@ function LogicSim()
 	
 	this.stopWiring = function(x, y)
 	{
-		this.deselectAll();
-
-		if (this.canPlaceWire())
+		if (this.canPlaceWire()) {
+			this.deselectAll();
 			this.placeWire(myWireStart, this.getWireEnd());
+		}
 
 		myIsWiring = false;
 	}
@@ -464,11 +472,7 @@ function LogicSim()
 	{
 		if (wire == null) 
 		{
-			var end = this.getWireEnd();
-			
-			if (myWireStart.equals(end))
-				return false;
-				
+			var end = this.getWireEnd();				
 			wire = new Wire(myWireStart, end);
 		}
 		var input = null;
@@ -477,12 +481,17 @@ function LogicSim()
 		{
 			var group = this.wireGroups[i];
 			
-			if (group.canAddWire(wire) && group.input != null)
+			if (group.canAddWire(wire))
 			{
-				if (input != null && !group.input.equals(input))
+				if (wire.start.equals(wire.end))
 					return false;
-				
-				input = group.input;
+
+				if (group.input != null) {
+					if (input != null && !group.input.equals(input))
+						return false;
+					
+					input = group.input;
+				}
 			}
 		}
 		
@@ -519,6 +528,10 @@ function LogicSim()
 	
 	this.placeWire = function(start, end, selected)
 	{
+		if (start.equals(end)) {
+			return null;
+		}
+
 		selected = selected != null ? true : false;
 		var wire = new Wire(start, end);
 		wire.selected = selected;
@@ -565,6 +578,32 @@ function LogicSim()
 
 		return wire;
 	}
+
+	this.removeWires = function(toRemove)
+	{
+		var groups = new Array();
+
+		for (var i = 0; i < toRemove.length; ++ i) {
+			var group = toRemove[i].group;
+			if (!groups.contains(group)) {
+				groups.push(group);
+
+				var wires = group.getWires();
+
+				var gindex = this.wireGroups.indexOf(group);
+				this.wireGroups.splice(gindex, 1);
+				group.removeAllOutputs();
+				
+				for (var i = 0; i < wires.length; ++ i)
+				{
+					var w = wires[i];
+					if (!toRemove.contains(w)) {
+						this.placeWire(w.start, w.end);
+					}
+				}
+			}
+		}
+	}
 	
 	this.removeWire = function(wire)
 	{
@@ -577,8 +616,9 @@ function LogicSim()
 		for (var i = 0; i < wires.length; ++ i)
 		{
 			var w = wires[i];
-			if (w != wire)
+			if (w != wire) {
 				this.placeWire(w.start, w.end);
+			}
 		}
 	}
 	
