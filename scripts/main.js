@@ -193,6 +193,26 @@ function LogicSim()
 			Math.round(this.mouseY / snap) * snap
 		);
 	}
+
+	this.getSelectedRect = function()
+	{
+		var start = new Pos(this.mouseDownPos.x, this.mouseDownPos.y);
+		var end = this.getDraggedPosition();
+
+		if (end.x < start.x) {
+			var temp = end.x;
+			end.x = start.x;
+			start.x = temp;
+		}
+
+		if (end.y < start.y) {
+			var temp = end.y;
+			end.y = start.y;
+			start.y = temp;
+		}
+
+		return new Rect(start.x, start.y, end.x - start.x, end.y - start.y);
+	}
 	
 	this.stopDragging = function()
 	{
@@ -296,7 +316,7 @@ function LogicSim()
 		
 		this.toolbar.mouseMove(x, y);
 
-		if (!myIsDragging && myCanDrag && this.mouseDownPos != null)
+		if (!myIsDragging && !myIsSelecting && myCanDrag && this.mouseDownPos != null)
 		{
 			var diff = new Pos(x, y).sub(this.mouseDownPos);
 			if (Math.abs(diff.x) >= 8 || Math.abs(diff.y) >= 8)
@@ -326,26 +346,24 @@ function LogicSim()
 		
 		myCanDrag = false;
 
+		var canSelect = this.mode == ControlMode.selecting;
+
 		if (x < 256)
 			this.toolbar.mouseDown(x, y);
-		else
-		{
+		else {
 			var pos = new Pos(x, y);
 		
-			for (var i = 0; i < this.gates.length; ++ i)
-			{
+			for (var i = 0; i < this.gates.length; ++ i) {
 				var gate = this.gates[i];
 				var rect = new Rect(gate.x + 8, gate.y + 8, gate.width - 16, gate.height - 16);
 				
-				if (rect.contains(pos))
-				{
+				if (rect.contains(pos)) {
 					gate.mouseDown();
-					if (this.mode == ControlMode.selecting)
+					if (this.mode == ControlMode.selecting) {
 						gate.selected = !gate.selected;
-					else if (this.mode == ControlMode.wiring)
-					{
-						if (!gate.selected) 
-						{
+						canSelect = false;
+					} else if (this.mode == ControlMode.wiring) {
+						if (!gate.selected) {
 							this.deselectAll();
 							gate.selected = true;
 						} else {
@@ -361,19 +379,16 @@ function LogicSim()
 			pos.x = Math.round(pos.x / gsize) * gsize;
 			pos.y = Math.round(pos.y / gsize) * gsize;
 			
-			for (var i = 0; i < this.wireGroups.length; ++ i)
-			{
+			for (var i = 0; i < this.wireGroups.length; ++ i) {
 				var group = this.wireGroups[i];
-				if (group.crossesPos(pos))
-				{
+				if (group.crossesPos(pos)) {
 					var wire = group.getWireAt(pos);
 
-					if (this.mode == ControlMode.selecting)
+					if (this.mode == ControlMode.selecting) {
 						wire.selected = !wire.selected;
-					else if (this.mode == ControlMode.wiring)
-					{
-						if (!wire.selected) 
-						{
+						canSelect = false;
+					} else if (this.mode == ControlMode.wiring) {
+						if (!wire.selected) {
 							this.deselectAll();
 							wire.selected = true;
 						} else {
@@ -383,9 +398,12 @@ function LogicSim()
 					}
 				}
 			}
-			
-			if (this.mode == ControlMode.wiring)
+
+			if (canSelect) {
+				myIsSelecting = true;
+			} else if (this.mode == ControlMode.wiring) {
 				this.startWiring(x, y);
+			}
 		}
 	}
 	
@@ -399,14 +417,35 @@ function LogicSim()
 		if (e.shiftKey) this.setMode(ControlMode.selecting);
 		else if (this.mode == ControlMode.selecting) this.setMode(ControlMode.wiring);
 		
-		if (myIsDragging)
+		if (myIsDragging) {
 			this.stopDragging();
-		else if (myIsWiring)
+		} else if (myIsWiring) {
 			this.stopWiring();
-		else if (x < 256)
+		} else if (myIsSelecting) {
+			myIsSelecting = false;
+
+			var rect = this.getSelectedRect();
+
+			for (var i = 0; i < this.gates.length; ++ i) {
+				var gate = this.gates[i];
+
+				if (gate.getRect().intersects(rect)) {
+					gate.selected = true;
+				}
+			}
+
+			var wires = this.getAllWires();
+			for (var i = 0; i < wires.length; ++ i) {
+				var wire = wires[i];
+
+				if (wire.start.x < rect.right && wire.end.x > rect.left
+                    && wire.start.y <= rect.bottom && wire.end.y >= rect.top) {
+					wire.selected = true;
+				}
+			}
+		} else if (x < 256) {
 			this.toolbar.mouseUp(x, y);
-		else
-		{
+		} else {
 			var pos = new Pos(x, y);
 			
 			var deleted = false;
@@ -555,6 +594,22 @@ function LogicSim()
 			this.context.lineTo(end.x, end.y);
 			this.context.stroke();
 			this.context.closePath();
+		}
+		else if (myIsSelecting)
+		{
+			var rect = this.getSelectedRect();
+
+			this.context.beginPath();
+			this.context.rect(rect.x - 1, rect.y - 1,
+				rect.width + 2, rect.height + 2);
+			this.context.globalAlpha = 0.25;
+			this.context.fillStyle = "#3333ff";
+			this.context.fill();
+			this.context.globalAlpha = 0.5;
+			this.context.strokeStyle = "#6666ff";
+			this.context.stroke();
+			this.context.closePath();
+			this.context.globalAlpha = 1.0;
 		}
 	}
 	
