@@ -198,29 +198,10 @@ function LogicSim()
 	{
 		myIsDragging = false;
 
-		var pos = this.getDraggedPosition();
-
-		for (var i = mySelection.gates.length - 1; i >= 0; i--)
-		{
-			var gate = mySelection.gates[i];
-			gate.x += pos.x;
-			gate.y += pos.y;
-
-			if (this.canPlaceGate(gate))
-				this.placeGate(gate);
-		}
-
-		var wires = mySelection.getAllWires();
-		for (var i = 0; i < wires.length; ++i)
-		{
-			var wire = wires[i];
-			wire.start.x += pos.x;
-			wire.start.y += pos.y;
-			wire.end.x += pos.x;
-			wire.end.y += pos.y;
-
-			if (this.canPlaceWire(wire))
-				this.placeWire(wire.start, wire.end, true);
+		if (myCanPlace) {
+			this.tryMerge(mySelection, this.getDraggedPosition(), true);
+		} else {
+			this.tryMerge(mySelection, this.mouseDownPos, true);
 		}
 
 		mySelection.clear();

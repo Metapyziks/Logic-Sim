@@ -25,14 +25,16 @@ function Environment()
         return env;
     }
 
-    this.tryMerge = function(env, offset)
+    this.tryMerge = function(env, offset, selected)
     {
         if (offset == null) offset = new Pos(0, 0);
+        if (selected == null) selected = false;
 
         for (var i = 0; i < env.gates.length; ++i) {
             var gate = env.gates[i].clone();
             gate.x += offset.x;
             gate.y += offset.y;
+            gate.selected = selected;
             if (!this.canPlaceGate(gate)) return false;
             this.placeGate(gate);
         }
@@ -42,7 +44,7 @@ function Environment()
             var wire = wires[i];
             wire = new Wire(wire.start.add(offset), wire.end.add(offset));
             if (!this.canPlaceWire(wire)) return false;
-            this.placeWire(wire.start, wire.end);
+            this.placeWire(wire.start, wire.end, selected);
         }
 
         return true;
