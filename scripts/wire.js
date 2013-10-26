@@ -21,13 +21,13 @@ function Wire(start, end)
 		return new Wire(this.start, this.end);		
 	}
 
-	this.render = function(context)
+	this.render = function(context, offset)
 	{
 		if (this.selected)
 		{
 			context.globalAlpha = 0.5;
 			context.fillStyle = "#6666FF";
-			context.fillRect(this.start.x - 4, this.start.y - 4,
+			context.fillRect(this.start.x + offset.x - 4, this.start.y + offset.y - 4,
 				this.end.x - this.start.x + 8, this.end.y - this.start.y + 8);
 			context.globalAlpha = 1.0;
 		}
@@ -36,8 +36,8 @@ function Wire(start, end)
 		context.lineWidth = 2;
 		
 		context.beginPath();
-		context.moveTo(this.start.x, this.start.y);
-		context.lineTo(this.end.x, this.end.y);
+		context.moveTo(this.start.x + offset.x, this.start.y + offset.y);
+		context.lineTo(this.end.x + offset.x, this.end.y + offset.y);
 		context.stroke();
 		context.closePath();
 		
@@ -55,7 +55,7 @@ function Wire(start, end)
 					continue;
 
 				context.beginPath();
-				context.arc(pos.x, pos.y, 3, 0, Math.PI * 2, true);
+				context.arc(pos.x + offset.x, pos.y + offset.y, 3, 0, Math.PI * 2, true);
 				context.fill();
 				context.closePath();
 			}

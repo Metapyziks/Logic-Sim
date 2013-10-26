@@ -298,12 +298,16 @@ function Environment()
         }
     }
 
-    this.render = function(context)
+    this.render = function(context, offset)
     {
+        if (offset == null) {
+            offset = new Pos(0, 0);
+        }
+
         for (var i = 0; i < this.wireGroups.length; ++ i)
-            this.wireGroups[i].render(context);
+            this.wireGroups[i].render(context, offset);
             
         for (var i = 0; i < this.gates.length; ++ i)
-            this.gates[i].render(context);
+            this.gates[i].render(context, offset);
     }
 }

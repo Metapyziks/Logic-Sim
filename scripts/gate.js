@@ -870,7 +870,7 @@ function Gate(gateType, x, y)
 		this.type.loadData(this, data);
 	}
 	
-	this.render = function(context)
+	this.render = function(context, offset)
 	{
 		if (this.selected)
 		{
@@ -878,11 +878,12 @@ function Gate(gateType, x, y)
 
 			context.globalAlpha = 0.5;
 			context.fillStyle = "#6666FF";
-			context.fillRect(rect.left - 4, rect.top - 4, rect.width + 8, rect.height + 8);
+			context.fillRect(rect.left - 4 + offset.x, rect.top - 4 + offset.y,
+				rect.width + 8, rect.height + 8);
 			context.globalAlpha = 1.0;
 		}
 
-		this.type.render(context, this.x, this.y, this);
+		this.type.render(context, this.x + offset.x, this.y + offset.y, this);
 		
 		context.strokeStyle = "#000000";
 		context.lineWidth = 2;
@@ -908,7 +909,7 @@ function Gate(gateType, x, y)
 			}
 
 			context.beginPath();
-			context.arc(pos.x, pos.y, 4, 0, Math.PI * 2, true);
+			context.arc(pos.x + offset.x, pos.y + offset.y, 4, 0, Math.PI * 2, true);
 			context.fill();
 			context.stroke();
 			context.closePath();

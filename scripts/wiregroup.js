@@ -159,9 +159,9 @@ function WireGroup(wire)
         this.isEmpty = true;
     }
     
-    this.render = function(context)
+    this.render = function(context, offset)
     {
         for (var i = 0; i < myWires.length; ++ i)
-            myWires[i].render(context);
+            myWires[i].render(context, offset);
     }
 }

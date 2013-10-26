@@ -542,25 +542,13 @@ function LogicSim()
 			for (var i = mySelection.gates.length - 1; i >= 0; i--)
 			{
 				var gate = mySelection.gates[i];
-				gate.x += pos.x;
-				gate.y += pos.y;
-				gate.render(this.context);
-				gate.x -= pos.x;
-				gate.y -= pos.y;
+				gate.render(this.context, pos);
 			}
 
 			for (var i = mySelection.wires.length - 1; i >= 0; i--)
 			{
 				var wire = mySelection.wires[i];
-				wire.start.x += pos.x;
-				wire.start.y += pos.y;
-				wire.end.x += pos.x;
-				wire.end.y += pos.y;
-				wire.render(this.context);
-				wire.start.x -= pos.x;
-				wire.start.y -= pos.y;
-				wire.end.x -= pos.x;
-				wire.end.y -= pos.y;
+				wire.render(this.context, pos);
 			}
 		}
 		else if (myIsWiring)
