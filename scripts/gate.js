@@ -875,14 +875,16 @@ function Gate(gateType, x, y)
 		this.type.loadData(this, data);
 	}
 	
-	this.render = function(context, offset)
+	this.render = function(context, offset, selectClr)
 	{
 		if (this.selected)
 		{
 			var rect = this.getRect();
 
+			if (selectClr == null) selectClr = "#6666FF";
+
 			context.globalAlpha = 0.5;
-			context.fillStyle = "#6666FF";
+			context.fillStyle = selectClr;
 			context.fillRect(rect.left - 4 + offset.x, rect.top - 4 + offset.y,
 				rect.width + 8, rect.height + 8);
 			context.globalAlpha = 1.0;

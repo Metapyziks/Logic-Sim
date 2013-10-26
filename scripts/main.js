@@ -25,6 +25,8 @@ function LogicSim()
 	var myCtrlDown = false;
 
 	var mySelection = new Environment();
+	var myCanPlace = false;
+	var myLastDragPos = null;
 
 	this.canvas = null;
 	this.context = null;
@@ -117,6 +119,7 @@ function LogicSim()
 			this.deselectAll();
 
 			var gate = new Gate(gateType, 0, 0);
+			gate.selected = true;
 
 			mySelection.placeGate(gate);
 		} else {
@@ -317,6 +320,14 @@ function LogicSim()
 			var diff = new Pos(x, y).sub(this.mouseDownPos);
 			if (Math.abs(diff.x) >= 8 || Math.abs(diff.y) >= 8)
 				this.startDragging();
+		} else if (myIsDragging) {
+			var pos = this.getDraggedPosition();
+
+			if (myLastDragPos == null || !pos.equals(myLastDragPos)) {
+				var env = this.clone();
+				myCanPlace = env.tryMerge(mySelection, pos);
+				myLastDragPos = pos;
+			}
 		}
 	}
 	
@@ -549,7 +560,7 @@ function LogicSim()
 		if (myIsDragging)
 		{
 			var pos = this.getDraggedPosition();
-			mySelection.render(this.context, pos);
+			mySelection.render(this.context, pos, myCanPlace ? "#6666ff" : "#ff6666");
 		}
 		else if (myIsWiring)
 		{		

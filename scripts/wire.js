@@ -21,12 +21,14 @@ function Wire(start, end)
 		return new Wire(this.start, this.end);		
 	}
 
-	this.render = function(context, offset)
+	this.render = function(context, offset, selectClr)
 	{
 		if (this.selected)
 		{
+			if (selectClr == null) selectClr = "#6666FF";
+
 			context.globalAlpha = 0.5;
-			context.fillStyle = "#6666FF";
+			context.fillStyle = selectClr;
 			context.fillRect(this.start.x + offset.x - 4, this.start.y + offset.y - 4,
 				this.end.x - this.start.x + 8, this.end.y - this.start.y + 8);
 			context.globalAlpha = 1.0;

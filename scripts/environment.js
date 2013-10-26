@@ -25,18 +25,23 @@ function Environment()
         return env;
     }
 
-    this.tryMerge = function(env)
+    this.tryMerge = function(env, offset)
     {
+        if (offset == null) offset = new Pos(0, 0);
+
         for (var i = 0; i < env.gates.length; ++i) {
-            var gate = this.gates[i];
+            var gate = env.gates[i].clone();
+            gate.x += offset.x;
+            gate.y += offset.y;
             if (!this.canPlaceGate(gate)) return false;
-            this.placeGate(gate.clone());
+            this.placeGate(gate);
         }
 
         var wires = env.getAllWires();
         for (var i = 0; i < wires.length; ++i) {
             var wire = wires[i];
-            if (!this.canPlaceWire(wire.start, wire.end)) return false;
+            wire = new Wire(wire.start.add(offset), wire.end.add(offset));
+            if (!this.canPlaceWire(wire)) return false;
             this.placeWire(wire.start, wire.end);
         }
 
@@ -332,16 +337,16 @@ function Environment()
         }
     }
 
-    this.render = function(context, offset)
+    this.render = function(context, offset, selectClr)
     {
         if (offset == null) {
             offset = new Pos(0, 0);
         }
 
         for (var i = 0; i < this.wireGroups.length; ++ i)
-            this.wireGroups[i].render(context, offset);
+            this.wireGroups[i].render(context, offset, selectClr);
             
         for (var i = 0; i < this.gates.length; ++ i)
-            this.gates[i].render(context, offset);
+            this.gates[i].render(context, offset, selectClr);
     }
 }
