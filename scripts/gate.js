@@ -748,11 +748,20 @@ function Gate(gateType, x, y)
 	this.inputs = this.type.inputs;
 	this.outputs = this.type.outputs;
 	
+	this.selected = false;
+
 	for (var i = 0; i < this.type.inputs.length; ++i)
 		myInLinks[i] = null;
 	
 	for (var i = 0; i < this.type.outputs.length; ++i)
 		myOutputs[i] = false;
+
+	this.clone = function()
+	{
+		var copy = new Gate(this.type, this.x, this.y);
+		copy.loadData(this.saveData());
+		return copy;
+	}
 	
 	this.getRect = function(gridSize)
 	{
@@ -785,6 +794,12 @@ function Gate(gateType, x, y)
 				return true;
 		
 		return false;
+	}
+	
+	this.unlinkAll = function()
+	{
+		for (var i = 0; i < this.inputs.length; ++ i)
+			myInLinks[i] = null;
 	}
 	
 	this.unlinkGate = function(gate)
@@ -862,9 +877,22 @@ function Gate(gateType, x, y)
 		this.type.loadData(this, data);
 	}
 	
-	this.render = function(context)
+	this.render = function(context, offset, selectClr)
 	{
-		this.type.render(context, this.x, this.y, this);
+		if (this.selected)
+		{
+			var rect = this.getRect();
+
+			if (selectClr == null) selectClr = "#6666FF";
+
+			context.globalAlpha = 0.5;
+			context.fillStyle = selectClr;
+			context.fillRect(rect.left - 4 + offset.x, rect.top - 4 + offset.y,
+				rect.width + 8, rect.height + 8);
+			context.globalAlpha = 1.0;
+		}
+
+		this.type.render(context, this.x + offset.x, this.y + offset.y, this);
 		
 		context.strokeStyle = "#000000";
 		context.lineWidth = 2;
@@ -888,9 +916,9 @@ function Gate(gateType, x, y)
 				context.fillStyle = myOutputs[i - this.inputs.length]
 					? "#FF9999" : "#9999FF";
 			}
-				
+
 			context.beginPath();
-			context.arc(pos.x, pos.y, 4, 0, Math.PI * 2, true);
+			context.arc(pos.x + offset.x, pos.y + offset.y, 4, 0, Math.PI * 2, true);
 			context.fill();
 			context.stroke();
 			context.closePath();

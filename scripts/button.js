@@ -45,7 +45,7 @@ Button.Base = function(x, y, width, height, contents)
 	{
 		if (this.selected)
 		{
-			context.fillStyle = "#CC6666";
+			context.fillStyle = "#A0D1EF";
 			context.fillRect(-4, -4, this.width + 8, this.height + 8);
 		}
 	}
