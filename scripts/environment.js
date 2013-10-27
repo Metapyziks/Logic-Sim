@@ -328,6 +328,8 @@ function Environment()
                 if (w.isHorizontal() == other.isHorizontal()) continue;
 
                 if (w.intersects(other)) {
+                    w.connect(other);
+                    other.connect(w);
                     wires.pushMany(w.split(other));
                     wires.pushMany(other.split(w));
                 }

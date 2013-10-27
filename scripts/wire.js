@@ -50,22 +50,20 @@ function Wire(start, end)
 		
 		context.fillStyle = "#000000";
 		
+		var startCons = 0;
+		var endCons = 0;
 		for (var i = 0; i < myConnections.length; ++ i)
 		{
 			var other = myConnections[i];
-			if (other.isVertical() && !this.isVertical())
-			{
-				var pos = this.crossPos(other);
+			var pos = this.crossPos(other);
 
-				if ((pos.equals(this.start) || pos.equals(this.end))
-					&& (pos.equals(other.start) || pos.equals(other.end)))
-					continue;
+			if ((pos.equals(this.start) && ++startCons < 2)
+				|| (pos.equals(this.end) && ++endCons < 2)) continue;
 
-				context.beginPath();
-				context.arc(pos.x + offset.x, pos.y + offset.y, 3, 0, Math.PI * 2, true);
-				context.fill();
-				context.closePath();
-			}
+			context.beginPath();
+			context.arc(pos.x + offset.x, pos.y + offset.y, 3, 0, Math.PI * 2, true);
+			context.fill();
+			context.closePath();
 		}
 	}
 	
