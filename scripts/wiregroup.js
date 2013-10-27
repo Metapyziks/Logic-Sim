@@ -15,27 +15,31 @@ function WireGroup(wire)
     
     this.canAddWire = function(wire)
     {   
-        for (var i = 0; i < myWires.length; ++ i)
-            if (myWires[i].canConnect(wire))
+        for (var i = 0; i < myWires.length; ++ i) {
+            if (myWires[i].canConnect(wire)) {
                 return true;
+            }
+        }
         
         return false;
     }
     
     this.crossesPos = function(pos)
     {
-        for (var i = 0; i < myWires.length; ++ i)
-            if (myWires[i].crossesPos(pos))
+        for (var i = 0; i < myWires.length; ++ i) {
+            if (myWires[i].crossesPos(pos)) {
                 return true;
+            }
+        }
         
         return false;
     }
     
     this.getWireAt = function(pos)
     {
-        for (var i = 0; i < myWires.length; ++ i)
-            if (myWires[i].crossesPos(pos))
-                return myWires[i];
+        for (var i = 0; i < myWires.length; ++ i) {
+            if (myWires[i].crossesPos(pos)) return myWires[i];
+        }
         
         return null;
     }
@@ -44,8 +48,7 @@ function WireGroup(wire)
     {
         this.input = new Link(gate, output);
         
-        for (var i = 0; i < this.outputs.length; ++ i)
-        {
+        for (var i = 0; i < this.outputs.length; ++ i) {
             var link = this.outputs[i];
             link.gate.linkInput(this.input.gate, this.input.socket, link.socket);
         }
@@ -58,8 +61,7 @@ function WireGroup(wire)
         var wires = myWires;
         myWires = [];
 
-        for (var i = 0; i < this.outputs.length; ++ i)
-        {
+        for (var i = 0; i < this.outputs.length; ++ i) {
             var link = this.outputs[i];
             logicSim.removeGate(link.gate);
             logicSim.placeGate(link.gate);
@@ -72,12 +74,12 @@ function WireGroup(wire)
     {   
         var link = new Link(gate, input);
         
-        if (this.outputs.containsEqual(link))
-            return;
+        if (this.outputs.containsEqual(link)) return;
         
-        if (this.input != null)
+        if (this.input != null) {
             gate.linkInput(this.input.gate, this.input.socket, link.socket);
-            
+        }
+
         this.outputs.push(link);
     }
     
@@ -92,42 +94,33 @@ function WireGroup(wire)
         var wires = myWires;
         myWires = [];
 
-        for (var i = this.outputs.length - 1; i >= 0; -- i)
+        for (var i = this.outputs.length - 1; i >= 0; -- i) {
             this.removeOutput(this.outputs[i]);
+        }
 
         myWires = wires;
     }
     
     this.addWire = function(wire)
     {       
-        if (wire.group != this)
-        {
-            for (var i = 0; i < myWires.length; ++ i)
-            {
-                if (myWires[i].canConnect(wire))
-                {
-                    myWires[i].connect(wire);
-                    wire.connect(myWires[i]);
-                }
-            }
-            
+        if (wire.group != this) {
             var oldGroup = wire.group;
             
             oldGroup.merge(this, wire);
             
-            if (oldGroup.input != null)
+            if (oldGroup.input != null) {
                 this.setInput(oldGroup.input.gate, oldGroup.input.socket);
-            
-            for (var i = 0; i < oldGroup.outputs.length; ++i)
+            }
+
+            for (var i = 0; i < oldGroup.outputs.length; ++i) {
                 this.addOutput(oldGroup.outputs[i].gate, oldGroup.outputs[i].socket);
-            
+            }
+
             wire.group = this;
             
-            for (var i = 0; i < myWires.length; ++ i)
-            {           
+            for (var i = 0; i < myWires.length; ++ i) {
                 var other = myWires[i];
-                if (other != wire && other.runsAlong(wire))
-                {
+                if (other != wire && other.runsAlong(wire)) {
                     other.merge(wire);
                     other.selected = other.selected || wire.selected;
                     wire = other;
@@ -135,20 +128,24 @@ function WireGroup(wire)
                     i = -1;
                 }
             }
+
+            for (var i = 0; i < myWires.length; ++ i) {
+                if (myWires[i].canConnect(wire)) {
+                    myWires[i].connect(wire);
+                    wire.connect(myWires[i]);
+                }
+            }
         }
         
-        if (!myWires.contains(wire))
-            myWires.push(wire);
+        if (!myWires.contains(wire)) myWires.push(wire);
 
         return wire;
     }
     
     this.merge = function(group, ignoreWire)
     {
-        for (var i = 0; i < myWires.length; ++ i)
-        {
-            if (myWires[i] != ignoreWire)
-            {
+        for (var i = 0; i < myWires.length; ++ i) {
+            if (myWires[i] != ignoreWire) {
                 myWires[i].group = group;
                 group.addWire(myWires[i].clone());
             }
@@ -161,7 +158,8 @@ function WireGroup(wire)
     
     this.render = function(context, offset, selectClr)
     {
-        for (var i = 0; i < myWires.length; ++ i)
+        for (var i = 0; i < myWires.length; ++ i) {
             myWires[i].render(context, offset, selectClr);
+        }
     }
 }

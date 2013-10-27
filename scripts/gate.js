@@ -879,8 +879,7 @@ function Gate(gateType, x, y)
 	
 	this.render = function(context, offset, selectClr)
 	{
-		if (this.selected)
-		{
+		if (this.selected) {
 			var rect = this.getRect();
 
 			if (selectClr == null) selectClr = "#6666FF";
@@ -898,21 +897,18 @@ function Gate(gateType, x, y)
 		context.lineWidth = 2;
 		context.fillStyle = "#9999FF";
 		
-		for (var i = 0; i < this.inputs.length + this.outputs.length; ++ i)
-		{
+		for (var i = 0; i < this.inputs.length + this.outputs.length; ++ i) {
 			var inp = (i < this.inputs.length ? this.inputs[i]
 				: this.outputs[i - this.inputs.length]);
 			var pos = inp.getPosition(this.type, this.x, this.y);
 				
-			if (i < this.inputs.length)
-			{
-				if (myInLinks[i] != null)
+			if (i < this.inputs.length) {
+				if (myInLinks[i] != null) {
 					context.fillStyle = myInLinks[i].getValue() ? "#FF9999" : "#9999FF";
-				else
+				} else {
 					context.fillStyle = "#999999";
-			}
-			else
-			{
+				}
+			} else {
 				context.fillStyle = myOutputs[i - this.inputs.length]
 					? "#FF9999" : "#9999FF";
 			}

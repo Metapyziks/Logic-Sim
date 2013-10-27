@@ -21,6 +21,11 @@ function Wire(start, end)
 		return new Wire(this.start, this.end);		
 	}
 
+	this.equals = function(wire)
+	{
+		return wire.start.equals(this.start) && wire.end.equals(this.end);
+	}
+
 	this.render = function(context, offset, selectClr)
 	{
 		if (this.selected)
@@ -88,30 +93,25 @@ function Wire(start, end)
 			&& this.start.x == wire.start.x && this.start.y <= wire.end.y
 			&& this.end.y >= wire.start.y);
 	}
-	
+
 	this.merge = function(wire)
 	{
 		var connections = wire.getConnections();
 	
-		for (var i = 0; i < connections.length; ++ i)
-		{
+		for (var i = 0; i < connections.length; ++ i) {
 			var w = connections[i];
 			w.disconnect(wire);
 			
-			if (w != this && !myConnections.contains(w))
-			{
+			if (w != this && !myConnections.contains(w)) {
 				this.connect(w);
 				w.connect(this);
 			}
 		}
 		
-		if (this.isHorizontal())
-		{
+		if (this.isHorizontal()) {
 			this.start.x = Math.min(this.start.x, wire.start.x);
 			this.end.x   = Math.max(this.end.x,   wire.end.x  );
-		}
-		else
-		{
+		} else {
 			this.start.y = Math.min(this.start.y, wire.start.y);
 			this.end.y   = Math.max(this.end.y,   wire.end.y  );
 		}
@@ -139,10 +139,11 @@ function Wire(start, end)
 	
 	this.crossPos = function(wire)
 	{
-		if (this.isVertical() && wire.isHorizontal())
+		if (this.isVertical() && wire.isHorizontal()) {
 			return new Pos(this.start.x, wire.start.y);
-		else
+		} else {
 			return new Pos(wire.start.x, this.start.y);
+		}
 	}
 	
 	this.canConnect = function(wire)
@@ -153,8 +154,9 @@ function Wire(start, end)
 
 	this.hasConnection = function(pos)
 	{
-		for (var i = myConnections.length - 1; i >= 0; --i)
+		for (var i = myConnections.length - 1; i >= 0; --i) {
 			if (myConnections[i].crossesPos(pos)) return true;
+		}
 
 		return false;
 	}
