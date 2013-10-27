@@ -95,28 +95,28 @@ function Wire(start, end)
 	}
 
 	this.split = function(wire)
-	{
-		var newWires = [];
-		
+	{		
 		if (this.isHorizontal()) {
-			if (this.start.x < wire.start.x && this.end.x > wire.start.x) {
-				newWires.push(new Wire(this.start, wire.start, this.selected));
+			if (wire.start.x == this.start.x || wire.start.x == this.end.x) {
+				return [];
 			}
 
-			if (this.start.x < wire.end.x && this.end.x > wire.end.x) {
-				newWires.push(new Wire(wire.end, this.end, this.selected));
-			}
+			var splat = new Wire(new Pos(wire.start.x, this.start.y), this.end);
+			splat.group = this.group;
+			this.end = new Pos(wire.start.x, this.start.y);
+
+			return [splat];
 		} else {
-			if (this.start.y < wire.start.y && this.end.y > wire.start.y) {
-				newWires.push(new Wire(this.start, wire.start, this.selected));
+			if (wire.start.y == this.start.y || wire.start.y == this.end.y) {
+				return [];
 			}
 
-			if (this.start.x < wire.end.y && this.end.y > wire.end.y) {
-				newWires.push(new Wire(wire.end, this.end, this.selected));
-			}
+			var splat = new Wire(new Pos(this.start.x, wire.start.y), this.end);
+			splat.group = this.group;
+			this.end = new Pos(this.start.x, wire.start.y);
+			
+			return [splat];
 		}
-
-		return newWires;
 	}
 
 	this.merge = function(wire)

@@ -306,15 +306,30 @@ function Environment()
 
         // Merge wires that run along eachother
         wires = group.getWires();
-        for (var i = wires.length - 1; i >= 0; i --) {
-            wire = wires[i];
-            for (var j = i - 1; j >= 0; j --) {
+        for (var i = wires.length - 1; i >= 0; -- i) {
+            var w = wires[i];
+            for (var j = i - 1; j >= 0; -- j) {
                 var other = wires[j];
 
-                if (wire.runsAlong(other)) {
-                    wire.merge(other);
+                if (w.runsAlong(other)) {
+                    w.merge(other);
                     wires.splice(j, 1);
                     break;
+                }
+            }
+        }
+
+        // Split at intersections
+        for (var i = 0; i < wires.length; ++ i) {
+            var w = wires[i];
+            for (var j = i + 1; j < wires.length; ++ j) {
+                var other = wires[j];
+
+                if (w.isHorizontal() == other.isHorizontal()) continue;
+
+                if (w.intersects(other)) {
+                    wires.pushMany(w.split(other));
+                    wires.pushMany(other.split(w));
                 }
             }
         }

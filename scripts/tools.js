@@ -8,6 +8,13 @@ Array.prototype.contains = function(obj)
     return false;
 }
 
+Array.prototype.pushMany = function(arr)
+{
+    for (var i = 0; i < arr.length; ++i) {
+    	this.push(arr[i]);
+    }
+}
+
 Array.prototype.containsEqual = function(obj)
 {
     var i = this.length;
