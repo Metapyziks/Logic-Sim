@@ -244,13 +244,19 @@ function Environment()
     this.placeWire = function(start, end, selected)
     {
         if (start.equals(end)) {
-            return null;
+            return;
         }
+
+        // Here we go...
 
         selected = selected != null ? true : false;
         var wire = new Wire(start, end);
         wire.selected = selected;
-        
+
+        var group = new WireGroup();
+        group.addWire(wire);
+
+        // Check for gate input / output intersections
         for (var i = 0; i < this.gates.length; ++ i) {
             var gate = this.gates[i];
             var rect = gate.getRect(logicSim.getGridSize());
@@ -274,25 +280,47 @@ function Environment()
                 }
             }
         }
-    
-        for (var i = 0; i < this.wireGroups.length; ++ i) {
-            var group = this.wireGroups[i];
-            if (group.canAddWire(wire)) {
-                wire = group.addWire(wire);
-            }
-        }
-        
-        for (var i = this.wireGroups.length - 1; i >= 0; --i) {
-            if (this.wireGroups[i].isEmpty) {
+
+        // Find all wire groups that are connected to the new wire, and
+        // dump their wires, input and outputs into the new group
+        var wires = null;
+        for (var i = this.wireGroups.length - 1; i >= 0; -- i) {
+            var oldGroup = this.wireGroups[i];
+            if (oldGroup.canAddWire(wire)) {
                 this.wireGroups.splice(i, 1);
+
+                wires = oldGroup.getWires();
+                for (var j = 0; j < wires.length; ++ j) {
+                    group.addWire(new Wire(wires[j].start, wires[j].end));
+                }
+                
+                if (oldGroup.input != null) {
+                    group.setInput(oldGroup.input.gate, oldGroup.input.socket);
+                }
+
+                for (var j = 0; j < oldGroup.outputs.length; ++ j) {
+                    group.addOutput(oldGroup.outputs[j].gate, oldGroup.outputs[j].socket);
+                }
             }
-        }
-        
-        if (!this.wireGroups.contains(wire.group)) {
-            this.wireGroups.push(wire.group);
         }
 
-        return wire;
+        // Merge wires that run along eachother
+        wires = group.getWires();
+        for (var i = wires.length - 1; i >= 0; i --) {
+            wire = wires[i];
+            for (var j = i - 1; j >= 0; j --) {
+                var other = wires[j];
+
+                if (wire.runsAlong(other)) {
+                    wire.merge(other);
+                    wires.splice(j, 1);
+                    break;
+                }
+            }
+        }
+
+        // Add the new group to the environment
+        this.wireGroups.push(group);
     }
     
     this.removeWire = function(wire)

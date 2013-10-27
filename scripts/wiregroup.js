@@ -1,7 +1,6 @@
-function WireGroup(wire)
+function WireGroup()
 {
     var myWires = new Array();
-    myWires.push(wire);
 
     this.input = null;
     this.outputs = new Array();
@@ -100,60 +99,14 @@ function WireGroup(wire)
 
         myWires = wires;
     }
-    
+
     this.addWire = function(wire)
-    {       
-        if (wire.group != this) {
-            var oldGroup = wire.group;
-            
-            oldGroup.merge(this, wire);
-            
-            if (oldGroup.input != null) {
-                this.setInput(oldGroup.input.gate, oldGroup.input.socket);
-            }
-
-            for (var i = 0; i < oldGroup.outputs.length; ++i) {
-                this.addOutput(oldGroup.outputs[i].gate, oldGroup.outputs[i].socket);
-            }
-
-            wire.group = this;
-            
-            for (var i = 0; i < myWires.length; ++ i) {
-                var other = myWires[i];
-                if (other != wire && other.runsAlong(wire)) {
-                    other.merge(wire);
-                    other.selected = other.selected || wire.selected;
-                    wire = other;
-                    myWires.splice(i, 1);
-                    i = -1;
-                }
-            }
-
-            for (var i = 0; i < myWires.length; ++ i) {
-                if (myWires[i].canConnect(wire)) {
-                    myWires[i].connect(wire);
-                    wire.connect(myWires[i]);
-                }
-            }
-        }
-        
-        if (!myWires.contains(wire)) myWires.push(wire);
-
-        return wire;
-    }
-    
-    this.merge = function(group, ignoreWire)
     {
-        for (var i = 0; i < myWires.length; ++ i) {
-            if (myWires[i] != ignoreWire) {
-                myWires[i].group = group;
-                group.addWire(myWires[i].clone());
-            }
-        }
-        
-        myWires = new Array();
-        
-        this.isEmpty = true;
+        if (wire.group == this) return;
+
+        wire.group = this;
+
+        myWires.push(wire);
     }
     
     this.render = function(context, offset, selectClr)

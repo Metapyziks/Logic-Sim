@@ -2,7 +2,7 @@ function Wire(start, end)
 {
 	var myConnections = new Array();
 	
-	this.group = new WireGroup(this);
+	this.group = null;
 	
 	this.start = new Pos(start.x, start.y);
 	this.end = new Pos(end.x, end.y);
@@ -92,6 +92,31 @@ function Wire(start, end)
 			|| (this.isVertical() && wire.isVertical()
 			&& this.start.x == wire.start.x && this.start.y <= wire.end.y
 			&& this.end.y >= wire.start.y);
+	}
+
+	this.split = function(wire)
+	{
+		var newWires = [];
+		
+		if (this.isHorizontal()) {
+			if (this.start.x < wire.start.x && this.end.x > wire.start.x) {
+				newWires.push(new Wire(this.start, wire.start, this.selected));
+			}
+
+			if (this.start.x < wire.end.x && this.end.x > wire.end.x) {
+				newWires.push(new Wire(wire.end, this.end, this.selected));
+			}
+		} else {
+			if (this.start.y < wire.start.y && this.end.y > wire.start.y) {
+				newWires.push(new Wire(this.start, wire.start, this.selected));
+			}
+
+			if (this.start.x < wire.end.y && this.end.y > wire.end.y) {
+				newWires.push(new Wire(wire.end, this.end, this.selected));
+			}
+		}
+
+		return newWires;
 	}
 
 	this.merge = function(wire)
