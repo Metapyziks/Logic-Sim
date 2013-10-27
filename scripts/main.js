@@ -125,21 +125,19 @@ function LogicSim()
 		} else {
 			var pos = this.mouseDownPos;
 
-			for (var i = this.gates.length - 1; i >= 0; i--)
-			{
+			for (var i = this.gates.length - 1; i >= 0; i--) {
 				var gate = this.gates[i];
 				if (!gate.selected) continue;
 
-				if (myCtrlDown)
-				{
+				if (myCtrlDown) {
 					gate.selected = false;
 					var data = gate.saveData();
 					gate = new Gate(gate.type, gate.x, gate.y);
 					gate.loadData(data);
 					gate.selected = true;
-				}
-				else
+				} else {
 					this.removeGate(gate);
+				}
 
 				gate.x -= pos.x;
 				gate.y -= pos.y;
@@ -149,8 +147,7 @@ function LogicSim()
 
 			var wires = this.getAllWires();
 			var toRemove = new Array();
-			for (var i = wires.length - 1; i >= 0; i--)
-			{
+			for (var i = wires.length - 1; i >= 0; i--) {
 				var wire = wires[i];
 				if (!wire.selected) continue;
 
@@ -175,18 +172,17 @@ function LogicSim()
 	{
 		var snap = myGridSize / 2;
 
-		for (var i = this.gates.length - 1; i >= 0; i--)
-		{
+		for (var i = this.gates.length - 1; i >= 0; i--) {
 			var gate = this.gates[i];
-			if (gate.selected)
-			{
+			if (gate.selected) {
 				snap = myGridSize;
 				break;
 			}
 		}
 
-		if (mySelection.gates.length > 0)
+		if (mySelection.gates.length > 0) {
 			snap = myGridSize;
+		}
 
 		return new Pos(
 			Math.round(this.mouseX / snap) * snap,
@@ -229,14 +225,11 @@ function LogicSim()
 
 	this.setMode = function(mode)
 	{
-		if (mode == ControlMode.deleting)
-		{
+		if (mode == ControlMode.deleting) {
 			var deleted = false;
-			for (var i = this.gates.length - 1; i >= 0; i--)
-			{
+			for (var i = this.gates.length - 1; i >= 0; i--) {
 				var gate = this.gates[i];
-				if (gate.selected)
-				{
+				if (gate.selected) {
 					deleted = true;
 					this.removeGate(gate);
 				}
@@ -244,11 +237,9 @@ function LogicSim()
 
 			var wires = this.getAllWires();
 			var toRemove = new Array();
-			for (var i = wires.length - 1; i >= 0; i--)
-			{
+			for (var i = wires.length - 1; i >= 0; i--) {
 				var wire = wires[i];
-				if (wire.selected)
-				{
+				if (wire.selected) {
 					deleted = true;
 					toRemove.push(wire);
 				}
@@ -296,11 +287,12 @@ function LogicSim()
 		
 		var diff = pos.sub(myWireStart);
 		
-		if (Math.abs(diff.x) >= Math.abs(diff.y))
+		if (Math.abs(diff.x) >= Math.abs(diff.y)) {
 			pos.y = myWireStart.y;
-		else
+		} else {
 			pos.x = myWireStart.x;
-			
+		}
+
 		return pos;
 	}
 	
@@ -316,8 +308,7 @@ function LogicSim()
 		
 		this.toolbar.mouseMove(x, y);
 
-		if (!myIsDragging && !myIsSelecting && myCanDrag && this.mouseDownPos != null)
-		{
+		if (!myIsDragging && !myIsSelecting && myCanDrag && this.mouseDownPos != null) {
 			var diff = new Pos(x, y).sub(this.mouseDownPos);
 			if (Math.abs(diff.x) >= 8 || Math.abs(diff.y) >= 8)
 				this.startDragging();
@@ -348,9 +339,9 @@ function LogicSim()
 
 		var canSelect = this.mode == ControlMode.selecting;
 
-		if (x < 256)
+		if (x < 256) {
 			this.toolbar.mouseDown(x, y);
-		else {
+		} else {
 			var pos = new Pos(x, y);
 		
 			for (var i = 0; i < this.gates.length; ++ i) {
@@ -373,7 +364,6 @@ function LogicSim()
 					}
 				}
 			}
-
 			
 			var gsize = myGridSize / 2;
 			pos.x = Math.round(pos.x / gsize) * gsize;
@@ -450,42 +440,34 @@ function LogicSim()
 			
 			var deleted = false;
 		
-			for (var i = 0; i < this.gates.length; ++ i)
-			{
+			for (var i = 0; i < this.gates.length; ++ i) {
 				var gate = this.gates[i];
 				
-				if (gate.isMouseDown)
-				{
+				if (gate.isMouseDown) {
 					var rect = new Rect(gate.x + 8, gate.y + 8, gate.width - 16, gate.height - 16);
 					
-					if (rect.contains(pos))
-					{
-						if (this.mode == ControlMode.deleting && !deleted)
-						{
+					if (rect.contains(pos)) {
+						if (this.mode == ControlMode.deleting && !deleted) {
 							this.removeGate(gate);
 							deleted = true;
-						}
-						else
+						} else {
 							gate.click();
+						}
 					}
 					
 					gate.mouseUp();
 				}
 			}
 			
-			if (this.mode == ControlMode.deleting && !deleted)
-			{
+			if (this.mode == ControlMode.deleting && !deleted) {
 				var gsize = 8;
 				pos.x = Math.round(pos.x / gsize) * gsize;
 				pos.y = Math.round(pos.y / gsize) * gsize;
 				
-				if (this.mouseDownPos.equals(pos))
-				{
-					for (var i = 0; i < this.wireGroups.length; ++ i)
-					{
+				if (this.mouseDownPos.equals(pos)) {
+					for (var i = 0; i < this.wireGroups.length; ++ i) {
 						var group = this.wireGroups[i];
-						if (group.crossesPos(pos))
-						{
+						if (group.crossesPos(pos)) {
 							var wire = group.getWireAt(pos);
 							this.removeWire(wire);
 							break;
@@ -519,14 +501,12 @@ function LogicSim()
 		if (e.keyCode == 16) this.setMode(ControlMode.selecting);
 		if (e.keyCode == 17) myCtrlDown = true;
 
-		if (e.keyCode == 83 && e.ctrlKey)
-		{
+		if (e.keyCode == 83 && e.ctrlKey) {
 			Saving.save();
 			e.preventDefault();
 		}
 
-		if (e.keyCode == 79 && e.ctrlKey)
-		{
+		if (e.keyCode == 79 && e.ctrlKey) {
 			Saving.loadFromPrompt();
 			e.preventDefault();
 		}
@@ -577,13 +557,10 @@ function LogicSim()
 		
 		this.toolbar.render(this.context);
 		
-		if (myIsDragging)
-		{
+		if (myIsDragging) {
 			var pos = this.getDraggedPosition();
 			mySelection.render(this.context, pos, myCanPlace ? "#6666ff" : "#ff6666");
-		}
-		else if (myIsWiring)
-		{		
+		} else if (myIsWiring) {		
 			var end = this.getWireEnd();
 		
 			this.context.strokeStyle = this.canPlaceWire(new Wire(myWireStart, this.getWireEnd()))
@@ -594,9 +571,7 @@ function LogicSim()
 			this.context.lineTo(end.x, end.y);
 			this.context.stroke();
 			this.context.closePath();
-		}
-		else if (myIsSelecting)
-		{
+		} else if (myIsSelecting) {
 			var rect = this.getSelectedRect();
 
 			this.context.beginPath();
@@ -620,11 +595,13 @@ function LogicSim()
 	
 	this.mainLoop = function(self)
 	{
-		for (var i = 0; i < self.gates.length; ++ i)
+		for (var i = 0; i < self.gates.length; ++ i) {
 			self.gates[i].step();
+		}
 			
-		for (var i = 0; i < self.gates.length; ++ i)
+		for (var i = 0; i < self.gates.length; ++ i) {
 			self.gates[i].commit();
+		}
 			
 		self.render();
 	}
@@ -634,16 +611,13 @@ logicSim = new LogicSim();
 
 window.onload = function(e)
 {
-	if (!images.allImagesLoaded())
-	{
+	if (!images.allImagesLoaded()) {
 		images.onAllLoaded = function()
 		{
 			logicSim.initialize();
 			logicSim.run();
 		}
-	}
-	else
-	{
+	} else {
 		logicSim.initialize();
 		logicSim.run();
 	}
@@ -651,34 +625,38 @@ window.onload = function(e)
 
 window.onmousemove = function(e)
 {
-	if (e)
+	if (e) {
 		logicSim.mouseMove(e.pageX, e.pageY, e);
-	else
+	} else {
 		logicSim.mouseMove(window.event.clientX, window.event.clientY, window.event);
+	}
 }
 
 window.onmousedown = function(e)
 {
-	if (e)
+	if (e) {
 		logicSim.mouseDown(e.pageX, e.pageY, e);
-	else
+	} else {
 		logicSim.mouseDown(window.event.clientX, window.event.clientY, window.event);
+	}
 }
 
 window.onmouseup = function(e)
 {
-	if (e)
+	if (e) {
 		logicSim.mouseUp(e.pageX, e.pageY, e);
-	else
+	} else {
 		logicSim.mouseUp(window.event.clientX, window.event.clientY, window.event);
+	}
 }
 
 window.onclick = function(e)
 {
-	if (e)
+	if (e) {
 		logicSim.click(e.pageX, e.pageY, e);
-	else
+	} else {
 		logicSim.click(window.event.clientX, window.event.clientY, window.event);
+	}
 }
 
 window.onkeydown = function(e)
