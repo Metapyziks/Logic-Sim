@@ -291,7 +291,9 @@ function Environment()
 
                 wires = oldGroup.getWires();
                 for (var j = 0; j < wires.length; ++ j) {
-                    group.addWire(new Wire(wires[j].start, wires[j].end));
+                    var newWire = new Wire(wires[j].start, wires[j].end);
+                    newWire.selected = wires[j].selected;
+                    group.addWire(newWire);
                 }
                 
                 if (oldGroup.input != null) {
@@ -319,7 +321,7 @@ function Environment()
             }
         }
 
-        // Split at intersections
+        // Split at intersections and connect
         for (var i = 0; i < wires.length; ++ i) {
             var w = wires[i];
             for (var j = i + 1; j < wires.length; ++ j) {

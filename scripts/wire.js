@@ -101,6 +101,7 @@ function Wire(start, end)
 
 			var splat = new Wire(new Pos(wire.start.x, this.start.y), this.end);
 			splat.group = this.group;
+			splat.selected = this.selected;
 			this.end = new Pos(wire.start.x, this.start.y);
 
 			return [splat];
@@ -111,6 +112,7 @@ function Wire(start, end)
 
 			var splat = new Wire(new Pos(this.start.x, wire.start.y), this.end);
 			splat.group = this.group;
+			splat.selected = this.selected;
 			this.end = new Pos(this.start.x, wire.start.y);
 			
 			return [splat];
@@ -119,17 +121,7 @@ function Wire(start, end)
 
 	this.merge = function(wire)
 	{
-		var connections = wire.getConnections();
-	
-		for (var i = 0; i < connections.length; ++ i) {
-			var w = connections[i];
-			w.disconnect(wire);
-			
-			if (w != this && !myConnections.contains(w)) {
-				this.connect(w);
-				w.connect(this);
-			}
-		}
+		this.selected = this.selected || wire.selected;
 		
 		if (this.isHorizontal()) {
 			this.start.x = Math.min(this.start.x, wire.start.x);
