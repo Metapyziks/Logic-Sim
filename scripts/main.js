@@ -147,7 +147,7 @@ function LogicSim()
 
 			var wires = this.getAllWires();
 			var toRemove = new Array();
-			for (var i = wires.length - 1; i >= 0; -- i) {
+			for (var i = 0; i < wires.length; ++ i) {
 				var wire = wires[i];
 				if (!wire.selected) continue;
 
@@ -214,10 +214,12 @@ function LogicSim()
 	{
 		myIsDragging = false;
 
-		if (myCanPlace) {
-			this.tryMerge(mySelection, this.getDraggedPosition(), true);
-		} else {
-			this.tryMerge(mySelection, this.mouseDownPos, true);
+		if (this.getDraggedPosition().x >= 256) {
+			if (myCanPlace) {
+				this.tryMerge(mySelection, this.getDraggedPosition(), true);
+			} else {
+				this.tryMerge(mySelection, this.mouseDownPos, true);
+			}
 		}
 
 		mySelection.clear();
@@ -407,7 +409,7 @@ function LogicSim()
 		this.mouseY = y;
 
 		myCtrlDown = e.ctrlKey;
-		
+
 		if (this.toolbar == null) return;
 
 		if (e.shiftKey) this.setMode(ControlMode.selecting);
@@ -561,8 +563,6 @@ function LogicSim()
 		
 		this.__proto__.render(this.context);
 		
-		this.toolbar.render(this.context);
-		
 		if (myIsDragging) {
 			var pos = this.getDraggedPosition();
 			mySelection.render(this.context, pos, myCanPlace ? "#6666ff" : "#ff6666");
@@ -592,6 +592,8 @@ function LogicSim()
 			this.context.closePath();
 			this.context.globalAlpha = 1.0;
 		}
+		
+		this.toolbar.render(this.context);
 	}
 	
 	this.run = function()

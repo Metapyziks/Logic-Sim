@@ -75,6 +75,8 @@ function Environment()
     this.canPlaceGate = function(gate)
     {
         var rect = gate.getRect();
+
+        if (rect.x < 256) return false;
         
         for (var i = 0; i < this.gates.length; ++i) {
             var other = this.gates[i].getRect();
@@ -197,6 +199,8 @@ function Environment()
     this.canPlaceWire = function(wire)
     {
         var input = null;
+
+        if (wire.start.x < 256) return false;
         
         for (var i = 0; i < this.wireGroups.length; ++ i) {
             var group = this.wireGroups[i];
@@ -367,8 +371,8 @@ function Environment()
             if (this.wireGroups.contains(group)) {
                 var wires = group.getWires();
 
-                for (var i = 0; i < wires.length; ++ i) {
-                    var w = wires[i];
+                for (var j = 0; j < wires.length; ++ j) {
+                    var w = wires[j];
                     if (!toRemove.containsEqual(w)) {
                         survivors.push({start: w.start, end: w.end});
                     }
