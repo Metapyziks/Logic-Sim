@@ -9,6 +9,72 @@ function Environment()
         this.wireGroups = new Array();
     }
 
+    this.save = function()
+    {
+        var obj = { gates: [], wires: [] };
+
+        for (var i = 0; i < this.gates.length; ++i)
+        {
+            var gate = this.gates[i];
+            var gobj = {
+                t: gate.type.ctorname,
+                x: gate.x,
+                y: gate.y,
+                o: gate.getOutputs(),
+                d: gate.saveData()
+            };
+
+            if (gobj.t == "CustomIC") {
+                gobj.i = logicSim.customGroup.items.indexOf(gate.type);
+            }
+
+            obj.gates.push(gobj);
+        }
+
+        for (var i = 0; i < this.wireGroups.length; ++i)
+        {
+            var wires = this.wireGroups[i].getWires();
+            for (var j = 0; j < wires.length; ++j)
+            {
+                var wire = wires[j];
+                obj.wires.push({
+                    sx: wire.start.x,
+                    sy: wire.start.y,
+                    ex: wire.end.x,
+                    ey: wire.end.y
+                });
+            }
+        }
+
+        return obj;
+    }
+
+    this.load = function(obj, ics)
+    {
+        for (var i = 0; i < obj.gates.length; ++i)
+        {
+            var info = obj.gates[i];
+            var gate = null;
+
+            if (info.t == "CustomIC") {
+                gate = new Gate(ics[info.i], info.x, info.y);
+            } else {
+                var ctor = window[info.t];
+                gate = new Gate(new ctor(), info.x, info.y);
+            }
+
+            this.placeGate(gate);
+            gate.setOutputs(info.o);
+            gate.loadData(info.d);
+        }
+
+        for (var i = 0; i < obj.wires.length; ++i)
+        {
+            var info = obj.wires[i];
+            this.placeWire(new Pos(info.sx, info.sy), new Pos(info.ex, info.ey));
+        }
+    }
+
     this.clone = function()
     {
         var env = new Environment();

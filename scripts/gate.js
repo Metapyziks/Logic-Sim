@@ -128,6 +128,8 @@ function CustomIC(name, environment)
 	var inputs = new Array();
 	var outputs = new Array();
 
+	this.ctorname = arguments.callee.name;
+
 	this.environment = environment;
 	
 	for (var i = 0; i < envInputs.length; ++ i) {

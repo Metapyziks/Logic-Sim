@@ -28,6 +28,8 @@ function LogicSim()
 	var myCanPlace = false;
 	var myLastDragPos = null;
 
+	var myCustoms = new Array();
+
 	this.canvas = null;
 	this.context = null;
 	
@@ -37,8 +39,6 @@ function LogicSim()
 	this.mouseY = 0;
 	
 	this.mosueDownPos = null;
-
-	this.customGroup = null;
 
 	this.mode = ControlMode.wiring;
 	
