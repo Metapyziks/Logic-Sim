@@ -303,6 +303,8 @@ function LogicSim()
 
 		myCtrlDown = e.ctrlKey;
 
+		if (this.toolbar == null) return;
+
 		if (e.shiftKey) this.setMode(ControlMode.selecting);
 		else if (this.mode == ControlMode.selecting) this.setMode(ControlMode.wiring);
 		
@@ -329,6 +331,8 @@ function LogicSim()
 		this.mouseY = y;
 
 		myCtrlDown = e.ctrlKey;
+
+		if (this.toolbar == null) return;
 
 		if (e.shiftKey) this.setMode(ControlMode.selecting);
 		else if (this.mode == ControlMode.selecting) this.setMode(ControlMode.wiring);
@@ -403,6 +407,8 @@ function LogicSim()
 		this.mouseY = y;
 
 		myCtrlDown = e.ctrlKey;
+		
+		if (this.toolbar == null) return;
 
 		if (e.shiftKey) this.setMode(ControlMode.selecting);
 		else if (this.mode == ControlMode.selecting) this.setMode(ControlMode.wiring);
