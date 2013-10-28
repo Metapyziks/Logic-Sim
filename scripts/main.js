@@ -28,6 +28,8 @@ function LogicSim()
 	var myCanPlace = false;
 	var myLastDragPos = null;
 
+	var myCustoms = new Array();
+
 	this.canvas = null;
 	this.context = null;
 	
@@ -37,8 +39,6 @@ function LogicSim()
 	this.mouseY = 0;
 	
 	this.mosueDownPos = null;
-
-	this.customGroup = null;
 
 	this.mode = ControlMode.wiring;
 	
@@ -50,8 +50,10 @@ function LogicSim()
 		this.toolbar = new Toolbar();
 		var grp = this.toolbar.addGroup("Tools");
 		grp.addItem(new Button.Tool(images.newfile, function() {
-			logicSim.gates = new Array();
-			logicSim.wireGroups = new Array();
+			if (confirm("Are you sure you want to delete all existing gates, "
+				+ "wires and custom circuits?")) {
+				logicSim.clear();
+			}
 		}));
 		grp.addItem(new Button.Tool(images.save, function() {
 			Saving.save();
@@ -70,6 +72,17 @@ function LogicSim()
 				logicSim.setMode(ControlMode.wiring);
 			else
 				logicSim.setMode(ControlMode.selecting);
+		}));
+		grp.addItem(new Button.Tool(images.newic, function() {
+			if (logicSim.getOutputs().length == 0) {
+				alert("At least one output required to create an integrated circuit.");
+				return;
+			}
+
+			var name = prompt("Please enter a name for the new integrated circuit.", "");
+			if (name == null) return;
+
+			logicSim.customGroup.addItem(new CustomIC(name, logicSim.clone()));
 		}));
 
 		grp = this.toolbar.addGroup("Logic Gates");
@@ -147,7 +160,7 @@ function LogicSim()
 
 			var wires = this.getAllWires();
 			var toRemove = new Array();
-			for (var i = wires.length - 1; i >= 0; -- i) {
+			for (var i = 0; i < wires.length; ++ i) {
 				var wire = wires[i];
 				if (!wire.selected) continue;
 
@@ -214,10 +227,12 @@ function LogicSim()
 	{
 		myIsDragging = false;
 
-		if (myCanPlace) {
-			this.tryMerge(mySelection, this.getDraggedPosition(), true);
-		} else {
-			this.tryMerge(mySelection, this.mouseDownPos, true);
+		if (this.getDraggedPosition().x >= 256) {
+			if (myCanPlace) {
+				this.tryMerge(mySelection, this.getDraggedPosition(), true);
+			} else {
+				this.tryMerge(mySelection, this.mouseDownPos, true);
+			}
 		}
 
 		mySelection.clear();
@@ -407,7 +422,7 @@ function LogicSim()
 		this.mouseY = y;
 
 		myCtrlDown = e.ctrlKey;
-		
+
 		if (this.toolbar == null) return;
 
 		if (e.shiftKey) this.setMode(ControlMode.selecting);
@@ -553,46 +568,6 @@ function LogicSim()
 		this.canvas.width = window.innerWidth;
 		this.canvas.height = window.innerHeight;
 	}
-
-	this.render = function()
-	{
-		this.context.fillStyle = this.context.createPattern(myGridImage, "repeat");
-		this.context.fillRect(256, 0, this.canvas.width - 256, this.canvas.height);
-		
-		this.__proto__.render(this.context);
-		
-		this.toolbar.render(this.context);
-		
-		if (myIsDragging) {
-			var pos = this.getDraggedPosition();
-			mySelection.render(this.context, pos, myCanPlace ? "#6666ff" : "#ff6666");
-		} else if (myIsWiring) {		
-			var end = this.getWireEnd();
-		
-			this.context.strokeStyle = this.canPlaceWire(new Wire(myWireStart, this.getWireEnd()))
-				? "#009900" : "#990000";
-			this.context.lineWidth = 2;
-			this.context.beginPath();
-			this.context.moveTo(myWireStart.x, myWireStart.y);
-			this.context.lineTo(end.x, end.y);
-			this.context.stroke();
-			this.context.closePath();
-		} else if (myIsSelecting) {
-			var rect = this.getSelectedRect();
-
-			this.context.beginPath();
-			this.context.rect(rect.x - 1, rect.y - 1,
-				rect.width + 2, rect.height + 2);
-			this.context.globalAlpha = 0.25;
-			this.context.fillStyle = "#3333ff";
-			this.context.fill();
-			this.context.globalAlpha = 0.5;
-			this.context.strokeStyle = "#6666ff";
-			this.context.stroke();
-			this.context.closePath();
-			this.context.globalAlpha = 1.0;
-		}
-	}
 	
 	this.run = function()
 	{
@@ -601,15 +576,46 @@ function LogicSim()
 	
 	this.mainLoop = function(self)
 	{
-		for (var i = 0; i < self.gates.length; ++ i) {
-			self.gates[i].step();
+		for (var i = 0; i < 4; ++ i) {
+			self.step();
 		}
-			
-		for (var i = 0; i < self.gates.length; ++ i) {
-			self.gates[i].commit();
+
+		self.context.fillStyle = self.context.createPattern(myGridImage, "repeat");
+		self.context.fillRect(256, 0, self.canvas.width - 256, self.canvas.height);
+		
+		self.render(self.context);
+		
+		if (myIsDragging) {
+			var pos = self.getDraggedPosition();
+			mySelection.render(self.context, pos, myCanPlace ? "#6666ff" : "#ff6666");
+		} else if (myIsWiring) {		
+			var end = self.getWireEnd();
+		
+			self.context.strokeStyle = self.canPlaceWire(new Wire(myWireStart, self.getWireEnd()))
+				? "#009900" : "#990000";
+			self.context.lineWidth = 2;
+			self.context.beginPath();
+			self.context.moveTo(myWireStart.x, myWireStart.y);
+			self.context.lineTo(end.x, end.y);
+			self.context.stroke();
+			self.context.closePath();
+		} else if (myIsSelecting) {
+			var rect = self.getSelectedRect();
+
+			self.context.beginPath();
+			self.context.rect(rect.x - 1, rect.y - 1,
+				rect.width + 2, rect.height + 2);
+			self.context.globalAlpha = 0.25;
+			self.context.fillStyle = "#3333ff";
+			self.context.fill();
+			self.context.globalAlpha = 0.5;
+			self.context.strokeStyle = "#6666ff";
+			self.context.stroke();
+			self.context.closePath();
+			self.context.globalAlpha = 1.0;
 		}
-			
-		self.render();
+		
+		self.toolbar.render(self.context);
 	}
 }
 

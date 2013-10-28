@@ -1,38 +1,16 @@
 Saving = new Object();
 Saving.save = function()
 {
-    var obj = { gates: [], wires: [] };
+    var obj = { ics: [], root: logicSim.save() };
 
-    for (var i = 0; i < logicSim.gates.length; ++i)
-    {
-        var gate = logicSim.gates[i];
-        obj.gates.push({
-            t: gate.type.ctorname,
-            x: gate.x,
-            y: gate.y,
-            o: gate.getOutputs(),
-            d: gate.saveData()
-        });
-    }
-
-    for (var i = 0; i < logicSim.wireGroups.length; ++i)
-    {
-        var wires = logicSim.wireGroups[i].getWires();
-        for (var j = 0; j < wires.length; ++j)
-        {
-            var wire = wires[j];
-            obj.wires.push({
-                sx: wire.start.x,
-                sy: wire.start.y,
-                ex: wire.end.x,
-                ey: wire.end.y
-            });
-        }
+    for (var i = 0; i < logicSim.customGroup.items.length; ++i) {
+        var ic = logicSim.customGroup.items[i];
+        obj.ics.push({ name: ic.name, env: ic.environment.save() });
     }
 
     var str = LZString.compressToBase64(JSON.stringify(obj));
 
-    window.prompt("Copy this save code with Ctrl+C to load later.", str);
+    window.open("data:text/plain;charset=UTF-8," + str, "_blank");
 }
 
 Saving.loadFromHash = function()
@@ -51,19 +29,14 @@ Saving.load = function(str)
 {
     var obj = JSON.parse(LZString.decompressFromBase64(str));
 
-    for (var i = 0; i < obj.gates.length; ++i)
-    {
-        var info = obj.gates[i];
-        var ctor = window[info.t];
-        var gate = new Gate(new ctor(), info.x, info.y);
-        logicSim.placeGate(gate);
-        gate.setOutputs(info.o);
-        gate.loadData(info.d);
+    var ics = new Array();
+    for (var i = 0; i < obj.ics.length; ++ i) {
+        var ic = obj.ics[i];
+        var env = new Environment();
+        env.load(ic.env, ics);
+        ics[i] = new CustomIC(ic.name, env);
+        logicSim.customGroup.addItem(ics[i]);
     }
 
-    for (var i = 0; i < obj.wires.length; ++i)
-    {
-        var info = obj.wires[i];
-        logicSim.placeWire(new Pos(info.sx, info.sy), new Pos(info.ex, info.ey));
-    }
+    logicSim.load(obj.root, ics);
 }
