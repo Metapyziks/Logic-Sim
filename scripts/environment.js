@@ -25,6 +25,38 @@ function Environment()
         return env;
     }
 
+    var myIOSort = function (a, b) {
+        if (a.y < b.y) return -1;
+        if (a.y == b.y) return a.x < b.x ? -1 : a.x == b.x ? 0 : 1;
+        return 1;
+    }
+
+    this.getInputs = function()
+    {
+        var inputs = new Array();
+        for (var i = 0; i < this.gates.length; ++i) {
+            var gate = this.gates[i];
+            if (gate.type.ctorname == "ICInput") {
+                inputs.push(gate);
+            }
+        }
+
+        return inputs.sort(myIOSort);
+    }
+
+    this.getOutputs = function()
+    {
+        var outputs = new Array();
+        for (var i = 0; i < this.gates.length; ++i) {
+            var gate = this.gates[i];
+            if (gate.type.ctorname == "ICOutput") {
+                outputs.push(gate);
+            }
+        }
+
+        return outputs.sort(myIOSort);
+    }
+
     this.tryMerge = function(env, offset, selected)
     {
         if (offset == null) offset = new Pos(0, 0);
@@ -386,6 +418,17 @@ function Environment()
 
         for (var i = 0; i < survivors.length; ++ i) {
             this.placeWire(survivors[i].start, survivors[i].end);
+        }
+    }
+
+    this.step = function()
+    {
+        for (var i = 0; i < this.gates.length; ++ i) {
+            this.gates[i].step();
+        }
+            
+        for (var i = 0; i < this.gates.length; ++ i) {
+            this.gates[i].commit();
         }
     }
 
