@@ -54,7 +54,7 @@ function Environment()
     {
         var wires = [];
         for (var i = this.wireGroups.length - 1; i >= 0; i--) {
-            wires = wires.concat(this.wireGroups[i].getWires());
+            wires.pushMany(this.wireGroups[i].getWires());
         }
 
         return wires;
@@ -321,7 +321,7 @@ function Environment()
             }
         }
 
-        // Split at intersections and connect
+        // Split at intersections
         for (var i = 0; i < wires.length; ++ i) {
             var w = wires[i];
             for (var j = i + 1; j < wires.length; ++ j) {
@@ -330,10 +330,21 @@ function Environment()
                 if (w.isHorizontal() == other.isHorizontal()) continue;
 
                 if (w.intersects(other)) {
-                    w.connect(other);
-                    other.connect(w);
                     wires.pushMany(w.split(other));
                     wires.pushMany(other.split(w));
+                }
+            }
+        }
+
+        // Connect touching wires
+        for (var i = 0; i < wires.length; ++ i) {
+            var w = wires[i];
+            for (var j = i + 1; j < wires.length; ++ j) {
+                var other = wires[j];
+
+                if (w.intersects(other)) {
+                    w.connect(other);
+                    other.connect(w);
                 }
             }
         }
@@ -349,27 +360,28 @@ function Environment()
 
     this.removeWires = function(toRemove)
     {
-        var groups = new Array();
+        var survivors = new Array();
 
         for (var i = 0; i < toRemove.length; ++ i) {
             var group = toRemove[i].group;
-            if (!groups.contains(group)) {
-                groups.push(group);
-
+            if (this.wireGroups.contains(group)) {
                 var wires = group.getWires();
+
+                for (var i = 0; i < wires.length; ++ i) {
+                    var w = wires[i];
+                    if (!toRemove.containsEqual(w)) {
+                        survivors.push({start: w.start, end: w.end});
+                    }
+                }
 
                 var gindex = this.wireGroups.indexOf(group);
                 this.wireGroups.splice(gindex, 1);
                 group.removeAllOutputs();
-                
-                for (var i = 0; i < wires.length; ++ i)
-                {
-                    var w = wires[i];
-                    if (!toRemove.contains(w)) {
-                        this.placeWire(w.start, w.end);
-                    }
-                }
             }
+        }
+
+        for (var i = 0; i < survivors.length; ++ i) {
+            this.placeWire(survivors[i].start, survivors[i].end);
         }
     }
 
