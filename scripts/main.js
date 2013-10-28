@@ -147,7 +147,7 @@ function LogicSim()
 
 			var wires = this.getAllWires();
 			var toRemove = new Array();
-			for (var i = wires.length - 1; i >= 0; i--) {
+			for (var i = wires.length - 1; i >= 0; -- i) {
 				var wire = wires[i];
 				if (!wire.selected) continue;
 

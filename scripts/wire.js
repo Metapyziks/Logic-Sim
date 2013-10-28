@@ -1,6 +1,7 @@
 function Wire(start, end)
 {
-	var myConnections = new Array();
+	var myStartConns = new Array();
+	var myEndConns = new Array();
 	
 	this.group = null;
 	
@@ -50,18 +51,16 @@ function Wire(start, end)
 		
 		context.fillStyle = "#000000";
 		
-		var startCons = 0;
-		var endCons = 0;
-		for (var i = 0; i < myConnections.length; ++ i)
-		{
-			var other = myConnections[i];
-			var pos = this.crossPos(other);
-
-			if ((pos.equals(this.start) && ++startCons < 2)
-				|| (pos.equals(this.end) && ++endCons < 2)) continue;
-
+		if (myStartConns.length > 1) {
 			context.beginPath();
-			context.arc(pos.x + offset.x, pos.y + offset.y, 3, 0, Math.PI * 2, true);
+			context.arc(this.start.x + offset.x, this.start.y + offset.y, 3, 0, Math.PI * 2, true);
+			context.fill();
+			context.closePath();
+		}
+
+		if (myEndConns.length > 1) {
+			context.beginPath();
+			context.arc(this.end.x + offset.x, this.end.y + offset.y, 3, 0, Math.PI * 2, true);
 			context.fill();
 			context.closePath();
 		}
@@ -69,7 +68,7 @@ function Wire(start, end)
 	
 	this.getConnections = function()
 	{
-		return myConnections;
+		return myStartConns.concat(myEndConns);
 	}
 	
 	this.isHorizontal = function()
@@ -163,14 +162,18 @@ function Wire(start, end)
 	
 	this.canConnect = function(wire)
 	{
-		return !myConnections.contains(wire) &&
-			this.intersects(wire) && !this.crosses(wire);
+		return !myStartConns.contains(wire) && !myEndConns.contains(wire)
+			&& this.intersects(wire) && !this.crosses(wire);
 	}
 
 	this.hasConnection = function(pos)
 	{
-		for (var i = myConnections.length - 1; i >= 0; --i) {
-			if (myConnections[i].crossesPos(pos)) return true;
+		if (pos.equals(this.start)) {
+			return myStartConns.length > 0;
+		}
+
+		if (pos.equals(this.end)) {
+			return myEndConns.length > 0;
 		}
 
 		return false;
@@ -178,7 +181,17 @@ function Wire(start, end)
 	
 	this.connect = function(wire)
 	{
-		myConnections.push(wire);
+		if (wire == this) return;
+
+		var conns = myStartConns;
+
+		if (this.end.equals(wire.start) || this.end.equals(wire.end)) {
+			conns = myEndConns;
+		}
+
+		if (!conns.contains(wire)) {
+			conns.push(wire);
+		}
 	}
 	
 	this.disconnect = function(wire)
