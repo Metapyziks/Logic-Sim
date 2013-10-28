@@ -50,7 +50,10 @@ function LogicSim()
 		this.toolbar = new Toolbar();
 		var grp = this.toolbar.addGroup("Tools");
 		grp.addItem(new Button.Tool(images.newfile, function() {
-	        logicSim.clear();
+			if (confirm("Are you sure you want to delete all existing gates, "
+				+ "wires and custom circuits?")) {
+				logicSim.clear();
+			}
 		}));
 		grp.addItem(new Button.Tool(images.save, function() {
 			Saving.save();
@@ -80,7 +83,6 @@ function LogicSim()
 			if (name == null) return;
 
 			logicSim.customGroup.addItem(new CustomIC(name, logicSim.clone()));
-			logicSim.clear();
 		}));
 
 		grp = this.toolbar.addGroup("Logic Gates");

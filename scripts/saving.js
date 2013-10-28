@@ -10,7 +10,7 @@ Saving.save = function()
 
     var str = LZString.compressToBase64(JSON.stringify(obj));
 
-    window.prompt("Copy this save code with Ctrl+C to load later.", str);
+    window.open("data:text/plain;charset=UTF-8," + str, "_blank");
 }
 
 Saving.loadFromHash = function()

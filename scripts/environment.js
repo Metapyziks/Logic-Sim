@@ -26,6 +26,7 @@ function Environment()
 
             if (gobj.t == "CustomIC") {
                 gobj.i = logicSim.customGroup.items.indexOf(gate.type);
+                gobj.e = gate.environment.save();
             }
 
             obj.gates.push(gobj);
@@ -58,6 +59,9 @@ function Environment()
 
             if (info.t == "CustomIC") {
                 gate = new Gate(ics[info.i], info.x, info.y);
+                var env = new Environment();
+                env.load(info.e, ics);
+                gate.environment = env;
             } else {
                 var ctor = window[info.t];
                 gate = new Gate(new ctor(), info.x, info.y);
