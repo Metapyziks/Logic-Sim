@@ -449,16 +449,8 @@ function LogicSim()
 			for (var i = 0; i < wires.length; ++ i) {
 				var wire = wires[i];
 
-				if (wire.isHorizontal()) {
-					if (wire.start.x < rect.right && wire.end.x > rect.left
-	                    && wire.start.y <= rect.bottom && wire.end.y >= rect.top) {
-						wire.selected = true;
-					}
-				} else {
-					if (wire.start.x <= rect.right && wire.end.x >= rect.left
-	                    && wire.start.y < rect.bottom && wire.end.y > rect.top) {
-						wire.selected = true;
-					}
+				if (rect.intersectsWire(wire)) {
+					wire.selected = true;
 				}
 			}
 		} else if (x < 256) {
