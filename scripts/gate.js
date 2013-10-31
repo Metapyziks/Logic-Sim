@@ -825,8 +825,10 @@ function Link(gate, socket)
 	}
 }
 
-function Gate(gateType, x, y)
+function Gate(gateType, x, y, noInit)
 {
+	if (noInit == null) noInit = false;
+
 	var myOutputs = new Array();
 	var myNextOutputs = new Array();
 	var myInLinks = new Array();
@@ -852,10 +854,14 @@ function Gate(gateType, x, y)
 	for (var i = 0; i < this.type.outputs.length; ++i)
 		myOutputs[i] = false;
 
-	this.clone = function()
+	this.clone = function(shallow)
 	{
-		var copy = new Gate(this.type, this.x, this.y);
-		copy.loadData(this.saveData());
+		if (shallow == null) shallow = false;
+
+		var copy = new Gate(this.type, this.x, this.y, shallow);
+
+		if (!shallow) copy.loadData(this.saveData());
+		
 		return copy;
 	}
 	
@@ -1017,5 +1023,7 @@ function Gate(gateType, x, y)
 		}
 	}
 	
-	this.type.initialize(this);
+	if (!noInit) {
+		this.type.initialize(this);
+	}
 }
