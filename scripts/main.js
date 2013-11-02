@@ -334,7 +334,7 @@ function LogicSim()
 
 			if (myLastDragPos == null || !pos.equals(myLastDragPos)) {
 				var env = this.clone();
-				myCanPlace = env.tryMerge(mySelection, pos);
+				myCanPlace = env.tryMerge(mySelection, pos, false, true);
 				myLastDragPos = pos;
 			}
 		}
@@ -449,8 +449,7 @@ function LogicSim()
 			for (var i = 0; i < wires.length; ++ i) {
 				var wire = wires[i];
 
-				if (wire.start.x < rect.right && wire.end.x > rect.left
-                    && wire.start.y <= rect.bottom && wire.end.y >= rect.top) {
+				if (rect.intersectsWire(wire)) {
 					wire.selected = true;
 				}
 			}

@@ -119,11 +119,53 @@ function Rect(x, y, width, height)
 	this.top = y;
 	this.right = x + width;
 	this.bottom = y + height;
+
+	this.setLeft = function(value)
+	{
+		this.left = value;
+		this.x = value;
+		this.width = this.right - value;
+	}
+
+	this.setTop = function(value)
+	{
+		this.top = value;
+		this.y = value;
+		this.height = this.bottom - value;
+	}
+
+	this.setRight = function(value)
+	{
+		this.right = value;
+		this.width = value - this.left;
+	}
+
+	this.setBottom = function(value)
+	{
+		this.bottom = value;
+		this.height = value - this.top;
+	}
 	
 	this.intersects = function(rect)
 	{
 		return this.left < rect.right && rect.left < this.right
 			&& this.top < rect.bottom && rect.top < this.bottom;
+	}
+
+	this.intersectsWire = function(wire, ends)
+	{
+		if (ends) {
+			return wire.start.x <= this.right && wire.end.x >= this.left
+                && wire.start.y <= this.bottom && wire.end.y >= this.top;
+		}
+
+		if (wire.isHorizontal()) {
+			return wire.start.x < this.right && wire.end.x > this.left
+                && wire.start.y <= this.bottom && wire.end.y >= this.top;
+		} else {
+			return wire.start.x <= this.right && wire.end.x >= this.left
+                && wire.start.y < this.bottom && wire.end.y > this.top;
+		}
 	}
 	
 	this.contains = function(pos)

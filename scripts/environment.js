@@ -127,13 +127,14 @@ function Environment()
         return outputs.sort(myIOSort);
     }
 
-    this.tryMerge = function(env, offset, selected)
+    this.tryMerge = function(env, offset, selected, shallow)
     {
         if (offset == null) offset = new Pos(0, 0);
         if (selected == null) selected = false;
+        if (shallow == null) shallow = false;
 
         for (var i = 0; i < env.gates.length; ++i) {
-            var gate = env.gates[i].clone();
+            var gate = env.gates[i].clone(shallow);
             gate.x += offset.x;
             gate.y += offset.y;
             gate.selected = selected;

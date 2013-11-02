@@ -1,6 +1,7 @@
 function WireGroup()
 {
     var myWires = new Array();
+    var myBounds = null;
 
     this.input = null;
     this.outputs = new Array();
@@ -14,6 +15,8 @@ function WireGroup()
     
     this.canAddWire = function(wire)
     {   
+        if (myBounds == null || !myBounds.intersectsWire(wire, true)) return false;
+
         for (var i = 0; i < myWires.length; ++ i) {
             if (myWires[i].canConnect(wire)) {
                 return true;
@@ -25,6 +28,8 @@ function WireGroup()
     
     this.crossesPos = function(pos)
     {
+        if (myBounds == null || !myBounds.contains(pos)) return false;
+
         for (var i = 0; i < myWires.length; ++ i) {
             if (myWires[i].crossesPos(pos)) {
                 return true;
@@ -36,6 +41,8 @@ function WireGroup()
     
     this.getWireAt = function(pos)
     {
+        if (myBounds == null || !myBounds.contains(pos)) return null;
+
         for (var i = 0; i < myWires.length; ++ i) {
             if (myWires[i].crossesPos(pos)) return myWires[i];
         }
@@ -103,6 +110,24 @@ function WireGroup()
     this.addWire = function(wire)
     {
         if (wire.group == this) return;
+
+        if (myBounds == null) {
+            myBounds = new Rect(wire.start.x, wire.start.y,
+                wire.end.x - wire.start.x, wire.end.y - wire.start.y);
+        } else {
+            if (wire.start.x < myBounds.left) {
+                myBounds.setLeft(wire.start.x);
+            }
+            if (wire.end.x > myBounds.right) {
+                myBounds.setRight(wire.end.x);
+            }
+            if (wire.start.y < myBounds.top) {
+                myBounds.setTop(wire.start.y);
+            }
+            if (wire.end.y > myBounds.bottom) {
+                myBounds.setBottom(wire.end.y);
+            }
+        }
 
         wire.group = this;
 
